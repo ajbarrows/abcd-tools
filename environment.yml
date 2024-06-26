@@ -1,0 +1,4 @@
+name: envname
+channels:
+  - defaults
+  - conda-forge
