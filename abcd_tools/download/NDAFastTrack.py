@@ -31,7 +31,7 @@ from typing import Generator
 
 import pandas as pd
 
-from .base import AbstractDownloader, AbstractParser
+from ..base import AbstractDownloader, AbstractParser
 
 # TODO make sure this works for all types of data
 
