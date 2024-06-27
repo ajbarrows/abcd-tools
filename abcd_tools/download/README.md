@@ -58,7 +58,7 @@ tasks=['MID']
 timepoints=['baselineYear1Arm1']
 
 parser = ManifestParser(dp=data_package, subjects=subjects, tasks=tasks, timepoints=timepoints)
-s3_links = parser.parse()
+parser.parse()
 ```
 
 `s3_links` now contains only those download locations which match our query (i.e., all baseline 'MID' imaging files for participant 'NDARINVxxxxxxxx'; this should, at most, be two links)

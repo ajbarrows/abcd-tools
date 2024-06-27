@@ -100,8 +100,8 @@ class ManifestParser(AbstractParser):
         """Parse metadata and generate S3 links.
         """
         self.load_metadata()
-        self.metadata = self._parse_metadata()
-        self.s3_links = self.get_s3_links_from_metadata()
+        self._parse_metadata()
+        self.get_s3_links_from_metadata()
 
     def load_metadata(self):
         """Loads metadata from file.
@@ -157,8 +157,15 @@ class ManifestParser(AbstractParser):
         return all.
         """
 
+        def _clean_subjects(subjects: list) -> list:
+            """Standardize list of subject IDs."""
+            if subjects:
+                subjects = [s.replace('_', '') for s in subjects]
+                subjects = [s.replace('sub-', '') for s in subjects]
+            return subjects
+
         filter_args = {
-            'src_subject_id': self.subjects,
+            'src_subject_id': _clean_subjects(self.subjects),
             'eventname': self.timepoints,
             'task': self.tasks
         }
