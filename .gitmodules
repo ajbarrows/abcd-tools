@@ -1,0 +1,3 @@
+[submodule "abcd_extract_eprime"]
+	path = abcd_extract_eprime
+	url = https://github.com/ABCD-STUDY/abcd_extract_eprime.git
