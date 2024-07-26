@@ -13,7 +13,7 @@ import os
 import pathlib
 import re
 
-import matlab.engine
+# import matlab.engine
 import numpy as np
 import pandas as pd
 
@@ -37,60 +37,60 @@ class eprimeDataSet(AbstractDataset):
         self.cols = cols
         self.sep = sep
 
-    def load_with_matlab(self, eng: matlab.engine) -> pd.DataFrame:
-        """Load and process ePrime files using DAIRC scripts.
+    # def load_with_matlab(self, eng: matlab.engine) -> pd.DataFrame:
+    #     """Load and process ePrime files using DAIRC scripts.
 
-        Returns:
-            pd.DataFrame: Dataframe of Matlab output.
-        """
-        # eng = self._start_matlab_engine()
-        change_path = self._resolve_matlab_path()
-        eng.cd(fr'{change_path}', nargout=0)
+    #     Returns:
+    #         pd.DataFrame: Dataframe of Matlab output.
+    #     """
+    #     # eng = self._start_matlab_engine()
+    #     change_path = self._resolve_matlab_path()
+    #     eng.cd(fr'{change_path}', nargout=0)
 
-        if self.taskname == "MID":
-            eng.parse_mid(str(self.filepath), nargout=0)
-        elif self.taskname == "SST":
-            eng.parse_sst(str(self.filepath), nargout=0)
-        elif self.taskname == "nBack":
-            eng.parse_nback(str(self.filepath), nargout=0)
+    #     if self.taskname == "MID":
+    #         eng.parse_mid(str(self.filepath), nargout=0)
+    #     elif self.taskname == "SST":
+    #         eng.parse_sst(str(self.filepath), nargout=0)
+    #     elif self.taskname == "nBack":
+    #         eng.parse_nback(str(self.filepath), nargout=0)
 
-        events = self._gather_matlab_events_file()
-        events = self._insert_id_vars(events)
-        return events
+    #     events = self._gather_matlab_events_file()
+    #     events = self._insert_id_vars(events)
+    #     return events
 
-    def _resolve_matlab_path(self):
-        """Get path to abcd_extract_eprime"""
-        # TODO this is hacky as hell
-        parent_path = pathlib.Path(__file__).parents[2]
-        matlab_mod_path = "abcd_extract_eprime"
-        change_path = pathlib.Path(parent_path, matlab_mod_path).resolve()
+    # def _resolve_matlab_path(self):
+    #     """Get path to abcd_extract_eprime"""
+    #     # TODO this is hacky as hell
+    #     parent_path = pathlib.Path(__file__).parents[2]
+    #     matlab_mod_path = "abcd_extract_eprime"
+    #     change_path = pathlib.Path(parent_path, matlab_mod_path).resolve()
 
-        return change_path
+    #     return change_path
 
-    def _start_matlab_engine(self):
-        """Instantiate connection to Matlab engine."""
-        return matlab.engine.start_matlab()
+    # def _start_matlab_engine(self):
+    #     """Instantiate connection to Matlab engine."""
+    #     return matlab.engine.start_matlab()
 
-    def _gather_matlab_events_file(self, outdir: str="out"
-        ) -> pd.DataFrame:
-        """Recuperate Matlab export.
+    # def _gather_matlab_events_file(self, outdir: str="out"
+    #     ) -> pd.DataFrame:
+    #     """Recuperate Matlab export.
 
-        Args:
-            outdir (str, optional): Should match Matlab output direectory.
-                Defaults to "../abcd_extract_eprime/out".
+    #     Args:
+    #         outdir (str, optional): Should match Matlab output direectory.
+    #             Defaults to "../abcd_extract_eprime/out".
 
-        Returns:
-            pd.DataFrame: Matlab export dataframe.
-        """
-        fname = pathlib.Path(self.fname)
+    #     Returns:
+    #         pd.DataFrame: Matlab export dataframe.
+    #     """
+    #     fname = pathlib.Path(self.fname)
 
-        if self.taskname == "SST":
-            events_fname = fname.stem + '_events_revised.csv'
-        else:
-            events_fname = fname.stem + '_events.csv'
-        matlab_path = self._resolve_matlab_path()
-        events_fpath = os.path.join(matlab_path, outdir, events_fname)
-        return pd.read_csv(events_fpath)
+    #     if self.taskname == "SST":
+    #         events_fname = fname.stem + '_events_revised.csv'
+    #     else:
+    #         events_fname = fname.stem + '_events.csv'
+    #     matlab_path = self._resolve_matlab_path()
+    #     events_fpath = os.path.join(matlab_path, outdir, events_fname)
+    #     return pd.read_csv(events_fpath)
 
     def load(self) -> pd.DataFrame:
         """Load ePrime with Python.
