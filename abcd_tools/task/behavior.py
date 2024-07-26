@@ -125,7 +125,11 @@ class eprimeDataSet(AbstractDataset):
         Returns:
             list: list of column names
         """
-        colnames = ConfigLoader.load_yaml(fpath)
+        p = pathlib.Path(__file__).parents[1]
+        fpath = pathlib.Path(fpath)
+
+        config_path = p / fpath
+        colnames = ConfigLoader.load_yaml(config_path)
         return colnames[self.taskname]
 
     def _find_subjectid(self) -> str:
@@ -205,6 +209,9 @@ class eprimeProcessor():
             'stim.rt'
         ]
 
+        rename = {'onsettime': 'onset'}
+        drop = ['offsettime']
+
         df = self._lowercase_columns(df)
 
         df = self._nback_impose_run(df)
@@ -218,7 +225,11 @@ class eprimeProcessor():
         df = self._nBack_merge_cue_stim(df)
 
         df['duration'] = df['offsettime'] - df['onsettime']
-        df = df[idx].dropna(subset='trial_type')
+        df = (df[idx]
+              .dropna(subset='trial_type')
+              .rename(columns=rename)
+              .drop(columns=drop)
+        )
 
         return df.reset_index(drop=True)
 
@@ -314,6 +325,7 @@ class eprimeProcessor():
         ]
 
         drop = ['condition','offsettime']
+        rename = {'block': 'run', 'onsettime': 'onset'}
         df = self._lowercase_columns(df)
 
         df = self._MID_drop_pre_dummy_scan(df)
@@ -329,6 +341,7 @@ class eprimeProcessor():
         long['duration'] = long['offsettime'] - long['onsettime']
         long['trial_type'] = long['condition'] + '_' + long['trial_type']
         long = long.dropna(subset='subtrial')
+        long = long.rename(columns=rename)
 
         return long.drop(columns=drop)
 
