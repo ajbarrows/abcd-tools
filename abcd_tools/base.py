@@ -1,4 +1,4 @@
-"""Base classes for download module."""
+"""Base classes for abcd-tools."""
 
 from abc import ABC, abstractmethod
 
@@ -22,4 +22,11 @@ class AbstractReorganizer(ABC):
     @abstractmethod
     def reorganize():
         """Abstract reorganize method."""
+        raise NotImplementedError
+
+class AbstractDataset(ABC):
+    """Base dataset class."""
+    @abstractmethod
+    def load():
+        """Abstract loading method."""
         raise NotImplementedError
