@@ -236,18 +236,24 @@ class eprimeProcessor():
     def _nback_impose_run(self, df: pd.DataFrame):
         """Explicitly indicate imaging run in events file."""
 
-        tmp = df[['getready.rttime', 'getready2.rttime']].ffill()
-        tmp['run'] = np.where(
-            tmp['getready2.rttime'].isna(),
-            1, 2
-        )
-        return pd.concat([df, tmp['run']], axis=1)
+        switch_r1 = 'TRSyncPROC'
+        switch_r2 = 'TRSyncPROCR2'
+
+        df['run'] = np.where(df['procedure[block]'] == switch_r1, 1,
+            np.where(df['procedure[block]'] == switch_r2, 2,
+            np.nan
+        ))
+        df['run'] = df['run'].ffill()
+
+        return df
 
     def _nBack_drop_pre_dummy_scan(self, df: pd.DataFrame):
         """Drop scans before indicator time."""
 
         prep_vars = ['getready.rttime', 'getready2.rttime']
-        df[prep_vars[0]] = df[prep_vars[0]].combine_first(df[prep_vars[1]])
+        if prep_vars[1] in list(df):
+            df[prep_vars[0]] = df[prep_vars[0]].combine_first(df[prep_vars[1]])
+
         df[prep_vars[0]] = df[prep_vars[0]].ffill()
 
         return df.dropna(subset=prep_vars[0])
@@ -302,7 +308,7 @@ class eprimeProcessor():
             'eventname',
             'task',
             'experimentname',
-            'experimentversion',
+            # 'experimentversion',
             'block',
             'subtrial',
             'condition'
@@ -310,16 +316,19 @@ class eprimeProcessor():
         vars = [
             'prbacc',
             'runmoney',
-            'prbrt'
+            # 'prbrt',
+            'overallrt'
         ]
 
         times = [
             'cue.onsettime',
             'cue.offsettime',
-            'anticipation.onsettime',
-            'anticipation.offsettime',
+            # 'anticipation.onsettime',
+            # 'anticipation.offsettime',
             'probe.onsettime',
             'probe.offsettime',
+            'probeRT.onsettime',
+            'probeRT.offsettime',
             'feedback.onsettime',
             'feedback.offsettime'
         ]
@@ -330,6 +339,8 @@ class eprimeProcessor():
 
         df = self._MID_drop_pre_dummy_scan(df)
         df = self._MID_align_timings(df)
+        df = self._MID_compute_probeRT(df)
+
         df = df[idx + times + vars]
 
         long = df.pivot_longer(
@@ -344,6 +355,7 @@ class eprimeProcessor():
         long = long.rename(columns=rename)
 
         return long.drop(columns=drop)
+
 
     def _MID_drop_pre_dummy_scan(self, df: pd.DataFrame) -> pd.DataFrame:
         """Drop scans before indicator variable."""
@@ -366,12 +378,28 @@ class eprimeProcessor():
              (x[cl] - x['preptime.onsettime']) / 1000 for cl in time_cols}
         df = df.assign(**d)
 
-        # convert reaction time to seconds
-        df['prbrt'] = df['prbrt'] / 1000
+        if 'overallrt' in list(df):
+
+            # convert reaction time to seconds
+            df['overallrt'][df['overallrt'] == '?'] = np.nan # who knows
+            df['overallrt'] = df['overallrt'].astype('float')
+            df['overallrt'] = df['overallrt'] / 1000
+
+        else:
+            df['overallrt'] = np.nan
+
+        return df
+
+    def _MID_compute_probeRT(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Add Probe RT onset/offset."""
+
+        df['probeRT.onsettime'] = df['probe.onsettime']
+        df['probeRT.offsettime'] = df['probeRT.onsettime'] + df['overallrt']
 
         return df
 
 
+    # TODO SSRT is not calculated
     def SST_process(self, df: pd.DataFrame) -> pd.DataFrame:
         """Process SST events.
 
@@ -392,7 +420,7 @@ class eprimeProcessor():
             'eventname',
             'task',
             'experimentname',
-            'experimentversion',
+            # 'experimentversion',
             'trial',
             'trialcode',
             'onset',
