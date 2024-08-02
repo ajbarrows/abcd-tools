@@ -415,6 +415,7 @@ class eprimeProcessor():
 
 
     # TODO SSRT is not calculated
+    # TODO figure out why onsets are off by 0.5 seconds
     def SST_process(self, df: pd.DataFrame) -> pd.DataFrame:
         """Process SST events.
 
@@ -448,10 +449,10 @@ class eprimeProcessor():
             'trialcode': 'trial_type'
         }
 
-        df['ssd.offsettime'] = df['ssd.onsettime'] + SS_STIMULUS_TIME
+        df['stopsignal.offsettime'] = df['stopsignal.starttime'] + SS_STIMULUS_TIME
 
-        df['onset'] = df['go.onsettime'].combine_first(df['ssd.onsettime'])
-        df['offset'] = df['go.offsettime'].combine_first(df['ssd.offsettime'])
+        df['onset'] = df['go.onsettime'].combine_first(df['stopsignal.starttime'])
+        df['offset'] = df['go.offsettime'].combine_first(df['stopsignal.offsettime'])
 
         df['duration'] = df['offset'] - df['onset']
         df = (df[idx]
