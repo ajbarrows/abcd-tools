@@ -317,7 +317,8 @@ class eprimeProcessor():
             'prbacc',
             'runmoney',
             # 'prbrt',
-            'overallrt'
+            'overallrt',
+            'accuracy'
         ]
 
         times = [
@@ -340,6 +341,7 @@ class eprimeProcessor():
         df = self._MID_drop_pre_dummy_scan(df)
         df = self._MID_align_timings(df)
         df = self._MID_compute_probeRT(df)
+        df = self._MID_parse_accuracy(df)
 
         df = df[idx + times + vars]
 
@@ -349,13 +351,26 @@ class eprimeProcessor():
             names_sep = '.'
         )
 
+        long = self._MID_impose_trial_type(long)
         long['duration'] = long['offsettime'] - long['onsettime']
-        long['trial_type'] = long['condition'] + '_' + long['trial_type']
-        long = long.dropna(subset='subtrial')
         long = long.rename(columns=rename)
 
         return long.drop(columns=drop)
 
+
+    def _MID_parse_accuracy(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Impose explicit hit/miss."""
+        df['accuracy'] = np.where(df['prbacc'] == 1, 'pos', 'neg')
+        return df
+
+    def _MID_impose_trial_type(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Parse basic trial types into specific ones."""
+        df['trial_type'] = np.where(
+            df['trial_type'] == 'feedback',
+            df['condition'] + '_' + df['accuracy'] + '_' + df['trial_type'],
+            df['condition'] + '_' + df['trial_type']
+            )
+        return df
 
     def _MID_drop_pre_dummy_scan(self, df: pd.DataFrame) -> pd.DataFrame:
         """Drop scans before indicator variable."""
