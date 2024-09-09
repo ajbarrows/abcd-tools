@@ -20,10 +20,12 @@ class eprimeDataSet(AbstractDataset):
 
     Attributes:
         filepath (str | os.PathLike): Path to ePrime file.
-        cols (list, optional): User-specified columns to load. Defaults to None.
+        cols (list, optional): User-specified columns to load. Defaults to YAML set.
         sep (str, optional): Delimeter. Defaults to '\t'.
     """
-    def __init__(self, filepath: str | os.PathLike, cols: list=None, sep: str='\t'):
+    def __init__(self, filepath: str | os.PathLike, cols: list|str='default',
+    sep: str='\t'
+    ):
 
         self.filepath = pathlib.PurePath(filepath)
         self.fname = self.filepath.name
@@ -38,17 +40,18 @@ class eprimeDataSet(AbstractDataset):
             pd.DataFrame: ePrime events file.
         """
 
-        if self.cols:
-            cols = self.cols
-        else:
-            cols = self._load_columns()
+        def _read_csv(fpath, sep, cols) -> pd.DataFrame:
+            """Helper function to read file with differing arguments."""
+            return pd.read_csv(fpath, sep=sep, usecols=cols, engine="python")
 
-        df = pd.read_csv(
-            self.filepath,
-            sep=self.sep,
-            usecols=lambda c: c in set(cols),
-            engine='python'
-        )
+        if self.cols is None:
+            df = _read_csv(self.filepath, self.sep, None)
+        if self.cols == 'default':
+            cols = self._load_columns()
+            df = _read_csv(self.filepath, self.sep, lambda c: c in set(cols))
+        else:
+            cols = self.cols
+            df = _read_csv(self.filepath, self.sep, cols)
 
         df = self._insert_id_vars(df)
 
