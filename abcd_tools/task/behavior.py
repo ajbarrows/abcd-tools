@@ -1,10 +1,5 @@
 """Parse individual ePrime files.
 
-Currently only supports loading using DAIRC-provided Matlab scripts with heavy
-modification (https://github.com/ABCD-STUDY/abcd_extract_eprime/).
-
-Warning: this module's authors are not responsible for parsing errors due to scripts
-provided externally (e.g., `abcd_extract_eprime_{}.m`)
 
 
 """
@@ -13,7 +8,6 @@ import os
 import pathlib
 import re
 
-# import matlab.engine
 import numpy as np
 import pandas as pd
 
@@ -36,61 +30,6 @@ class eprimeDataSet(AbstractDataset):
         self.taskname = self._find_taskname()
         self.cols = cols
         self.sep = sep
-
-    # def load_with_matlab(self, eng: matlab.engine) -> pd.DataFrame:
-    #     """Load and process ePrime files using DAIRC scripts.
-
-    #     Returns:
-    #         pd.DataFrame: Dataframe of Matlab output.
-    #     """
-    #     # eng = self._start_matlab_engine()
-    #     change_path = self._resolve_matlab_path()
-    #     eng.cd(fr'{change_path}', nargout=0)
-
-    #     if self.taskname == "MID":
-    #         eng.parse_mid(str(self.filepath), nargout=0)
-    #     elif self.taskname == "SST":
-    #         eng.parse_sst(str(self.filepath), nargout=0)
-    #     elif self.taskname == "nBack":
-    #         eng.parse_nback(str(self.filepath), nargout=0)
-
-    #     events = self._gather_matlab_events_file()
-    #     events = self._insert_id_vars(events)
-    #     return events
-
-    # def _resolve_matlab_path(self):
-    #     """Get path to abcd_extract_eprime"""
-    #     # TODO this is hacky as hell
-    #     parent_path = pathlib.Path(__file__).parents[2]
-    #     matlab_mod_path = "abcd_extract_eprime"
-    #     change_path = pathlib.Path(parent_path, matlab_mod_path).resolve()
-
-    #     return change_path
-
-    # def _start_matlab_engine(self):
-    #     """Instantiate connection to Matlab engine."""
-    #     return matlab.engine.start_matlab()
-
-    # def _gather_matlab_events_file(self, outdir: str="out"
-    #     ) -> pd.DataFrame:
-    #     """Recuperate Matlab export.
-
-    #     Args:
-    #         outdir (str, optional): Should match Matlab output direectory.
-    #             Defaults to "../abcd_extract_eprime/out".
-
-    #     Returns:
-    #         pd.DataFrame: Matlab export dataframe.
-    #     """
-    #     fname = pathlib.Path(self.fname)
-
-    #     if self.taskname == "SST":
-    #         events_fname = fname.stem + '_events_revised.csv'
-    #     else:
-    #         events_fname = fname.stem + '_events.csv'
-    #     matlab_path = self._resolve_matlab_path()
-    #     events_fpath = os.path.join(matlab_path, outdir, events_fname)
-    #     return pd.read_csv(events_fpath)
 
     def load(self) -> pd.DataFrame:
         """Load ePrime with Python.
@@ -167,7 +106,7 @@ class eprimeProcessor():
         """Process extracted data.
 
         Args:
-            data (pd.DataFrame): Event file from ePrimeDataSet.load_with_matlab().
+            data (pd.DataFrame): Event file from ePrimeDataSet.load().
 
         Returns:
             pd.DataFrame: Processed events.
@@ -191,7 +130,7 @@ class eprimeProcessor():
         """Process nBack task events.
 
         Args:
-            df (pd.DataFrame): Event file from ePrimeDataSet.load_with_matlab().
+            df (pd.DataFrame): Event file from ePrimeDataSet.load().
 
         Returns:
             pd.DataFrame: Processed data.
@@ -420,7 +359,7 @@ class eprimeProcessor():
         """Process SST events.
 
         Args:
-            df (pd.DataFrame): Event file from ePrimeDataSet.load_with_matlab().
+            df (pd.DataFrame): Event file from ePrimeDataSet.load().
 
         Returns:
             pd.DataFrame: Processed events.
@@ -486,278 +425,3 @@ class eprimeProcessor():
         d_dur = {cl: lambda x, cl=cl: (x[cl]) / 1000 for cl in dur_cols}
 
         return df.assign(**d_dur)
-
-
-
-
-# class MatlabProcessor():
-#     """Initialize Matlab extract processor object.
-
-#     Args:
-#         taskname (str): One of {"MID", "SST", "nBack"}
-#     """
-#     def __init__(self, taskname: str):
-#         self.taskname = taskname
-
-#     def process(self, data: pd.DataFrame) -> pd.DataFrame:
-#         """Process extracted data.
-
-#         Args:
-#             data (pd.DataFrame): Event file from ePrimeDataSet.load_with_matlab().
-
-#         Returns:
-#             pd.DataFrame: Processed events.
-#         """
-
-#         if self.taskname == "MID":
-#             processed = self.MID_process(data)
-#         elif self.taskname == "SST":
-#             processed = self.SST_process(data)
-#         elif self.taskname == "nBack":
-#             processed = self.nBack_process(data)
-
-#         return processed
-
-#     def MID_process(self, df: pd.DataFrame) -> pd.DataFrame:
-#         """Process MID task events.
-
-#         Args:
-#             df (pd.DataFrame): Event file from ePrimeDataSet.load_with_matlab().
-
-#         Returns:
-#             pd.DataFrame: Processed events.
-#         """
-
-#         idx = [
-#             'src_subject_id',
-#             'eventname',
-#             'task',
-#             'experiment',
-#             'version',
-#             'run',
-#             'trial',
-#             'type'
-#         ]
-#         vars = [
-#             'acc',
-#             'money',
-#             'rt'
-#         ]
-
-#         times = [
-#             'cue_onset',
-#             'cue_offset',
-#             'antic_onset',
-#             'antic_offset',
-#             'probe_onset',
-#             'probe_offset',
-#             'feedback_onset',
-#             'feedback_offset'
-#         ]
-
-#         drop = ['type','offset']
-
-#         df = self._MID_drop_pre_dummy_scan(df)
-#         df = self._MID_align_timings(df)
-#         df = df[idx + times + vars]
-
-#         long = df.pivot_longer(
-#             index=idx + vars,
-#             names_to = ('trial_type', '.value'),
-#             names_sep = '_'
-#         )
-
-#         long['duration'] = long['offset'] - long['onset']
-#         long['trial_type'] = long['type'] + '_' + long['trial_type']
-
-#         return long.drop(columns=drop)
-
-
-#     def _MID_drop_pre_dummy_scan(self, df: pd.DataFrame) -> pd.DataFrame:
-#         """Drop scans before indicator variable."""
-#         ready_var = 'getready_rttime'
-#         prep_var = 'prep_onset'
-
-#         vars = [ready_var, prep_var]
-
-#         for v in vars:
-#             df[v] = df[v].ffill()
-
-#         return df.dropna(subset=vars)
-
-
-#     def _MID_align_timings(self, df: pd.DataFrame) -> pd.DataFrame:
-#         """Align timings by subtracting preparation time and converting to seconds."""
-
-#         # subtract prep time from onset/offset and convert to seconds
-#         time_cols = [c for c in df.columns if 'onset' in c or 'offset' in c]
-#         time_cols.remove('prep_onset')
-#         d = {cl: lambda x, cl=cl:
-# (x[cl] - x['prep_onset']) / 1000 for cl in time_cols}
-#         df = df.assign(**d)
-
-#         # convert reaction time to seconds
-#         df['rt'] = df['rt'] / 1000
-
-#         return df
-
-#     def SST_process(self, df: pd.DataFrame) -> pd.DataFrame:
-#         """Process SST events.
-
-#         Args:
-#             df (pd.DataFrame): Event file from ePrimeDataSet.load_with_matlab().
-
-#         Returns:
-#             pd.DataFrame: Processed events.
-#         """
-#         SS_STIMULUS_TIME = 0.02
-
-#         df = self._SST_drop_pre_dummy_scan(df)
-#         df = self._SST_align_timings(df)
-
-#         idx = [
-#             'src_subject_id',
-#             'eventname',
-#             'experiment',
-#             'version',
-#             'task',
-#             'trial',
-#             'type',
-#             'onset',
-#             'offset',
-#             'duration'
-#         ]
-
-#         rename = {
-#             'trial': 'run',
-#             'type': 'trial_type'
-#         }
-
-#         df['ssd_offset_time'] = df['ssd_onset_time'] + SS_STIMULUS_TIME
-
-#         df['onset'] = df['go_onset_time'].combine_first(df['ssd_onset_time'])
-#         df['offset'] = df['go_offset_time'].combine_first(df['ssd_offset_time'])
-
-#         df['duration'] = df['offset'] - df['onset']
-#         df = (df[idx]
-#               .reset_index(drop=True)
-#               .rename(columns=rename)
-#             )
-#         return df
-
-
-#     def _SST_drop_pre_dummy_scan(self, df: pd.DataFrame):
-#         """Drop scans before indicator timing."""
-
-#         prep_var = 'beginfix_st'
-#         indicator_var = 'fix_rt' # recorded for every trial
-#         df[prep_var] = df[prep_var].ffill()
-
-#         return df.dropna(subset=[prep_var, indicator_var])
-
-#     def _SST_align_timings(self, df: pd.DataFrame):
-#         """Align times by subtracting preparation and converting to seconds."""
-
-#         time_stubs = ['onset', 'offset', 'start']
-#         time_cols = [c for c in df.columns for s in time_stubs if s in c]
-
-#         d = {cl: lambda x,
-# cl=cl: (x[cl] - x['beginfix_st']) / 1000 for cl in time_cols}
-#         df = df.assign(**d)
-
-#         dur_cols = [c for c in df.columns if 'dur' in c or 'rt' in c]
-#         dur_cols.remove('procedure_block')
-
-#         d = {cl: lambda x, cl=cl: (x[cl]) / 1000 for cl in dur_cols}
-
-#         return df.assign(**d)
-
-
-#     def nBack_process(self, df: pd.DataFrame) -> pd.DataFrame:
-#         """Process nBack task events.
-
-#         Args:
-#             df (pd.DataFrame): Event file from ePrimeDataSet.load_with_matlab().
-
-#         Returns:
-#             pd.DataFrame: Processed data.
-#         """
-#         idx = [
-#             'src_subject_id',
-#             'eventname',
-#             'task',
-#             'experiment',
-#             'trial_type',
-#             'run',
-#             'onset',
-#             'offset',
-#             'duration',
-#             'stim_rt'
-#         ]
-
-#         df = self._nback_impose_run(df)
-#         df = self._nBack_drop_pre_dummy_scan(df)
-#         df = self._nBack_align_timings(df)
-
-#         cue_procs = ['Cue0BackPROC', 'Cue2BackPROC']
-#         df.loc[df['procedure_block'].isin(cue_procs), 'block_type'] = 'cue'
-#         df['trial_type'] = df['block_type'].combine_first(df['stim_type'])
-
-#         df = self._nBack_merge_cue_stim(df)
-
-#         df['duration'] = df['offset'] - df['onset']
-#         df = df[idx].dropna(subset='trial_type')
-
-#         return df.reset_index(drop=True)
-
-#     def _nback_impose_run(self, df: pd.DataFrame):
-#         """Explicitly indicate imaging run in events file."""
-
-#         tmp = df[['getready_rttime', 'getready2_rttime']].ffill()
-#         tmp['run'] = np.where(
-#             tmp['getready2_rttime'].isna(),
-#             1, 2
-#         )
-#         return pd.concat([df, tmp['run']], axis=1)
-
-#     def _nBack_drop_pre_dummy_scan(self, df: pd.DataFrame):
-#         """Drop scans before indicator time."""
-
-#         prep_vars = ['getready_rttime', 'getready2_rttime']
-#         df[prep_vars[0]] = df[prep_vars[0]].combine_first(df[prep_vars[1]])
-#         df[prep_vars[0]] = df[prep_vars[0]].ffill()
-
-#         return df.dropna(subset=prep_vars[0])
-
-
-#     def _nBack_align_timings(self, df: pd.DataFrame) -> pd.DataFrame:
-#         """Align timings by subtracting preparation time and converting to seconds."""
-
-#         # subtract prep time from onset/offset and convert to seconds
-#         time_cols = [c for c in df.columns if 'onset' in c or 'offset' in c]
-#         d = {cl: lambda x,
-#              cl=cl: (x[cl] - x['getready_rttime']) / 1000
-#              for cl in time_cols
-#             }
-#         df = df.assign(**d)
-
-#         # convert reaction time to seconds
-#         df['stim_rt'] = df['stim_rt'] / 1000
-
-#         return df
-
-#     def _nBack_merge_cue_stim(self, df: pd.DataFrame) -> pd.DataFrame:
-#         """Merge nBack task onsets and offsets."""
-
-#         df = df[df['procedure_block'] != "Fix15secPROC"]
-
-#         # add fixation and cue durations
-#         df['cue_onset'] = df['cuefix_onset']
-#         df['cue_offset'] = df['cue0back_offset'].combine_first(df['cue2back_offset'])
-
-#         # merge columns
-
-#         df['onset'] = df['cue_onset'].combine_first(df['stim_onset'])
-#         df['offset'] = df['cue_offset'].combine_first(df['stim_offset'])
-
-#         return df
