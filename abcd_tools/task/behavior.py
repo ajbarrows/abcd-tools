@@ -286,6 +286,7 @@ class eprimeProcessor():
         df = self._MID_parse_accuracy(df)
 
         df = df[idx + times + vars]
+        return df
 
         long = df.pivot_longer(
             index=idx + vars,

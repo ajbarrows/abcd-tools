@@ -59,7 +59,7 @@ SST: [
     'StopSignal.RT',
     'Go.Duration',
     'SSDDur',
-    'StopSingal.Duration',
+    'StopSignal.Duration',
     'SSD.RT',
     'Go.OnsetTime',
     'Go.OffsetTime',
