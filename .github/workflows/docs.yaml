@@ -23,6 +23,7 @@ jobs:
         with:
           micromamba-version: '1.4.5-0'
           environment-file: environment.yml
+          generate-run-shell: false
           init-shell: bash
           cache-environment: true
           cache-environment-key: environment-${{ steps.date.outputs.date }}
