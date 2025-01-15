@@ -1,6 +1,5 @@
 """Compute various task metrics."""
 
-import os
 import pathlib
 
 import pandas as pd
@@ -36,16 +35,15 @@ class DPrimeDataset(AbstractDataset):
         dprime = self.compute_dprime(nback_behavioral, return_all)
         return dprime
 
-    def _load_columns(self, fpath: str | os.PathLike) -> dict:
+    def _load_columns(self, fpath: str) -> dict:
         """Load MRI behavioral columns from configuration file.
 
         Args:
-            fpath (str | os.PathLike): YAML config filepath.
+            fpath (str): YAML config filepath.
 
         Returns:
             dict: Column names.
         """
-
 
         p = pathlib.Path(__file__).parents[1]
         fpath = pathlib.Path(fpath)
