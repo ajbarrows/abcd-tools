@@ -1,9 +1,9 @@
 name: Build documentation
 
-on:
-  push:
-    branches:
-      - main
+# on:
+#   push:
+#     branches:
+#       - main
 
 jobs:
   build-docs:
@@ -31,6 +31,8 @@ jobs:
       #     post-cleanup: 'all'
 
       - name: Build docs
+        uses: mhausenblas/mkdocs-deploy-gh-pages@master
+
         run: |
           # conda activate abcd-tools
           python -m ipykernel install --user --name abcd-tools
