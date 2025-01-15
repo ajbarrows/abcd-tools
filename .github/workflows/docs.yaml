@@ -19,20 +19,20 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - uses: mamba-org/setup-micromamba@v1
-        with:
-          micromamba-version: '1.4.5-0'
-          environment-file: environment.yml
-          generate-run-shell: false
-          init-shell: bash
-          cache-environment: true
-          cache-environment-key: environment-${{ steps.date.outputs.date }}
-          cache-downloads-key: downloads-${{ steps.date.outputs.date }}
-          post-cleanup: 'all'
+      # - uses: mamba-org/setup-micromamba@v1
+      #   with:
+      #     micromamba-version: '1.4.5-0'
+      #     environment-file: environment.yml
+      #     generate-run-shell: false
+      #     init-shell: bash
+      #     cache-environment: true
+      #     cache-environment-key: environment-${{ steps.date.outputs.date }}
+      #     cache-downloads-key: downloads-${{ steps.date.outputs.date }}
+      #     post-cleanup: 'all'
 
       - name: Build docs
         run: |
-          conda activate abcd-tools
+          # conda activate abcd-tools
           python -m ipykernel install --user --name abcd-tools
           pip install -e .
           mkdocs build --site-dir /tmp/docs
