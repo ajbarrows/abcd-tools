@@ -6,10 +6,10 @@ on:
       - main
 jobs:
   build-docs:
-  runs-on: ubuntu-latest
-  name: Build documentation
-  steps:
-    - run: echo ""
+    runs-on: ubuntu-latest
+    name: Build documentation
+    steps:
+      - run: echo ""
 # jobs:
 #   build-docs:
 #     runs-on: ubuntu-latest
