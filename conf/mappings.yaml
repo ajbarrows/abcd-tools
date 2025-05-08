@@ -1,0 +1,15 @@
+session_map: {
+    'ses-00A': "baseline",
+    'ses-00M': "month_6",
+    'ses-01A': 'year_1',
+    'ses-01M': 'month_18',
+    'ses-02A': 'year_2',
+    'ses-02M': 'month_30',
+    'ses-03A': 'year_3',
+    'ses-03M': 'month_42',
+    'ses-04A': 'year_4',
+    'ses-04M': 'month_54',
+    'ses-05A': 'year_5',
+    'ses-05M': 'month_66',
+    'ses-06A': 'year_6'
+}

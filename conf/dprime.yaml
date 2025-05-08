@@ -1,72 +1,56 @@
-
-0back_target_total: {
-  tfmri_nb_all_beh_0bpft_nt: 0back_ntotal_posface_target,
-  tfmri_nb_all_beh_0bngft_nt: 0back_ntotal_negface_target,
-  tfmri_nb_all_beh_0bnft_nt: 0back_ntotal_neutface_target,
-  tfmri_nb_all_beh_0bpt_nt: 0back_ntotal_place_target,
-}
-
-0back_target_correct: {
-  tfmri_nb_all_beh_c0bnft_nt: 0back_ncorrect_neutface_target,
-  tfmri_nb_all_beh_c0bpt_nt: 0back_ncorrect_place_target,
-  tfmri_nb_all_beh_c0bpft_nt: 0back_ncorrect_posface_target,
-  tfmri_nb_all_beh_c0bngft_nt: 0back_ncorrect_negface_target
-}
-
-0back_total_reject: {
-  tfmri_nb_all_beh_0bngfl_nt: 0back_ntotal_negface_lure,
-  tfmri_nb_all_beh_0bngfnl_nt: 0back_ntotal_negface_nonlure,
-  tfmri_nb_all_beh_0bnfl_nt: 0back_ntotal_neutface_lure,
-  tfmri_nb_all_beh_0bnfnl_nt: 0back_ntotal_neutface_nonlure,
-  tfmri_nb_all_beh_0bpl_nt: 0back_ntotal_place_lure,
-  tfmri_nb_all_beh_0bpnl_nt: 0back_ntotal_place_nonlure,
-  tfmri_nb_all_beh_0bpfl_nt: 0back_ntotal_posface_lure,
-  tfmri_nb_all_beh_0bpfnl_nt: 0back_ntotal_posface_nonlure,
-}
-
-0back_correct_reject: {
-  tfmri_nb_all_beh_c0bngfl_nt: 0back_ncorrect_negface_lure,
-  tfmri_nb_all_beh_c0bngfnl_nt: 0back_ncorrect_negface_nonlure,
-  tfmri_nb_all_beh_c0bnfl_nt: 0back_ncorrect_neutface_lure,
-  tfmri_nb_all_beh_c0bnfnl_nt: 0back_ncorrect_neutface_nonlure,
-  tfmri_nb_all_beh_c0bpl_nt: 0back_ncorrect_place_lure,
-  tfmri_nb_all_beh_c0bpnl_nt: 0back_ncorrect_place_nonlure,
-  tfmri_nb_all_beh_c0bpfl_nt: 0back_ncorrect_posface_lure,
-  tfmri_nb_all_beh_c0bpfnl_nt: 0back_ncorrect_posface_nonlure
-}
-
-2back_target_total: {
-  tfmri_nb_all_beh_2bpft_nt: 2back_n_posface_target,
-  tfmri_nb_all_beh_2bngft_nt: 2back_n_negface_target,
-  tfmri_nb_all_beh_2bnft_nt: 2back_n_neutface_target,
-  tfmri_nb_all_beh_2bpt_nt: 2back_n_place_target
-}
-
-2back_target_correct: {
-  tfmri_nb_all_beh_c2bnft_nt: 2back_ncorrect_neutface_target,
-  tfmri_nb_all_beh_c2bpt_nt: 2back_ncorrect_place_target,
-  tfmri_nb_all_beh_c2bpft_nt: 2back_ncorrect_posface_target,
-  tfmri_nb_all_beh_c2bngft_nt: 2back_ncorrect_negface_target
-}
-
-2back_total_reject: {
-  tfmri_nb_all_beh_2bngfl_nt: 2back_ntotal_negface_lure,
-  tfmri_nb_all_beh_2bngfnl_nt: 2back_ntotal_negface_nonlure,
-  tfmri_nb_all_beh_2bnfl_nt: 2back_ntotal_neutface_lure,
-  tfmri_nb_all_beh_2bnfnl_nt: 2back_ntotal_neutface_nonlure,
-  tfmri_nb_all_beh_2bpl_nt: 2back_ntotal_place_lure,
-  tfmri_nb_all_beh_2bpnl_nt: 2back_ntotal_place_nonlure,
-  tfmri_nb_all_beh_2bpfl_nt: 2back_ntotal_posface_lure,
-  tfmri_nb_all_beh_2bpfnl_nt: 2back_ntotal_posface_nonlure
-}
-
-2back_correct_reject: {
-  tfmri_nb_all_beh_c2bngfl_nt: 2back_ncorrect_negface_lure,
-  tfmri_nb_all_beh_c2bngfnl_nt: 2back_ncorrect_negface_nonlure,
-  tfmri_nb_all_beh_c2bnfl_nt: 2back_ncorrect_neutface_lure,
-  tfmri_nb_all_beh_c2bnfnl_nt: 2back_ncorrect_neutface_nonlure,
-  tfmri_nb_all_beh_c2bpl_nt: 2back_ncorrect_place_lure,
-  tfmri_nb_all_beh_c2bpnl_nt: 2back_ncorrect_place_nonlure,
-  tfmri_nb_all_beh_c2bpfl_nt: 2back_ncorrect_posface_lure,
-  tfmri_nb_all_beh_c2bpfnl_nt: 2back_ncorrect_posface_nonlure
-}
+0back_correct_reject:
+  mr_y_tfmri__nback__beh__0b__neg__lure__crct_count: 0back_ncorrect_negface_lure
+  mr_y_tfmri__nback__beh__0b__neg__nonlure__crct_count: 0back_ncorrect_negface_nonlure
+  mr_y_tfmri__nback__beh__0b__neut__lure__crct_count: 0back_ncorrect_neutface_lure
+  mr_y_tfmri__nback__beh__0b__neut__nonlure__crct_count: 0back_ncorrect_neutface_nonlure
+  mr_y_tfmri__nback__beh__0b__place__lure__crct_count: 0back_ncorrect_place_lure
+  mr_y_tfmri__nback__beh__0b__place__nonlure__crct_count: 0back_ncorrect_place_nonlure
+  mr_y_tfmri__nback__beh__0b__pos__lure__crct_count: 0back_ncorrect_posface_lure
+  mr_y_tfmri__nback__beh__0b__pos__nonlure__crct_count: 0back_ncorrect_posface_nonlure
+0back_target_correct:
+  mr_y_tfmri__nback__beh__0b__neg__target__crct_count: 0back_ncorrect_negface_target
+  mr_y_tfmri__nback__beh__0b__neut__target__crct_count: 0back_ncorrect_neutface_target
+  mr_y_tfmri__nback__beh__0b__place__target__crct_count: 0back_ncorrect_place_target
+  mr_y_tfmri__nback__beh__0b__pos__target__crct_count: 0back_ncorrect_posface_target
+0back_target_total:
+  mr_y_tfmri__nback__beh__0b__neg__target_count: 0back_ntotal_negface_target
+  mr_y_tfmri__nback__beh__0b__neut__target_count: 0back_ntotal_neutface_target
+  mr_y_tfmri__nback__beh__0b__place__target_count: 0back_ntotal_place_target
+  mr_y_tfmri__nback__beh__0b__pos__target_count: 0back_ntotal_posface_target
+0back_total_reject:
+  mr_y_tfmri__nback__beh__0b__neg__lure_count: 0back_ntotal_negface_lure
+  mr_y_tfmri__nback__beh__0b__neg__nonlure_count: 0back_ntotal_negface_nonlure
+  mr_y_tfmri__nback__beh__0b__neut__lure_count: 0back_ntotal_neutface_lure
+  mr_y_tfmri__nback__beh__0b__neut__nonlure_count: 0back_ntotal_neutface_nonlure
+  mr_y_tfmri__nback__beh__0b__place__lure_count: 0back_ntotal_place_lure
+  mr_y_tfmri__nback__beh__0b__place__nonlure_count: 0back_ntotal_place_nonlure
+  mr_y_tfmri__nback__beh__0b__pos__lure_count: 0back_ntotal_posface_lure
+  mr_y_tfmri__nback__beh__0b__pos__nonlure_count: 0back_ntotal_posface_nonlure
+2back_correct_reject:
+  mr_y_tfmri__nback__beh__2b__neg__lure__crct_count: 2back_ncorrect_negface_lure
+  mr_y_tfmri__nback__beh__2b__neg__nonlure__crct_count: 2back_ncorrect_negface_nonlure
+  mr_y_tfmri__nback__beh__2b__neut__lure__crct_count: 2back_ncorrect_neutface_lure
+  mr_y_tfmri__nback__beh__2b__neut__nonlure__crct_count: 2back_ncorrect_neutface_nonlure
+  mr_y_tfmri__nback__beh__2b__place__lure__crct_count: 2back_ncorrect_place_lure
+  mr_y_tfmri__nback__beh__2b__place__nonlure__crct_count: 2back_ncorrect_place_nonlure
+  mr_y_tfmri__nback__beh__2b__pos__lure__crct_count: 2back_ncorrect_posface_lure
+  mr_y_tfmri__nback__beh__2b__pos__nonlure__crct_count: 2back_ncorrect_posface_nonlure
+2back_target_correct:
+  mr_y_tfmri__nback__beh__2b__neg__target__crct_count: 2back_ncorrect_negface_target
+  mr_y_tfmri__nback__beh__2b__neut__target__crct_count: 2back_ncorrect_neutface_target
+  mr_y_tfmri__nback__beh__2b__place__target__crct_count: 2back_ncorrect_place_target
+  mr_y_tfmri__nback__beh__2b__pos__target__crct_count: 2back_ncorrect_posface_target
+2back_target_total:
+  mr_y_tfmri__nback__beh__2b__neg__target_count: 2back_n_negface_target
+  mr_y_tfmri__nback__beh__2b__neut__target_count: 2back_n_neutface_target
+  mr_y_tfmri__nback__beh__2b__place__target_count: 2back_n_place_target
+  mr_y_tfmri__nback__beh__2b__pos__target_count: 2back_n_posface_target
+2back_total_reject:
+  mr_y_tfmri__nback__beh__2b__neg__lure_count: 2back_ntotal_negface_lure
+  mr_y_tfmri__nback__beh__2b__neg__nonlure_count: 2back_ntotal_negface_nonlure
+  mr_y_tfmri__nback__beh__2b__neut__lure_count: 2back_ntotal_neutface_lure
+  mr_y_tfmri__nback__beh__2b__neut__nonlure_count: 2back_ntotal_neutface_nonlure
+  mr_y_tfmri__nback__beh__2b__place__lure_count: 2back_ntotal_place_lure
+  mr_y_tfmri__nback__beh__2b__place__nonlure_count: 2back_ntotal_place_nonlure
+  mr_y_tfmri__nback__beh__2b__pos__lure_count: 2back_ntotal_posface_lure
+  mr_y_tfmri__nback__beh__2b__pos__nonlure_count: 2back_ntotal_posface_nonlure

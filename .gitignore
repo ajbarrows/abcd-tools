@@ -2,9 +2,10 @@
 # Created by https://www.toptal.com/developers/gitignore/api/python
 # Edit at https://www.toptal.com/developers/gitignore?templates=python
 
+*.csv
 notes/
 update_remote.sh
-
+*.m
 ### Python ###
 # Byte-compiled / optimized / DLL files
 __pycache__/

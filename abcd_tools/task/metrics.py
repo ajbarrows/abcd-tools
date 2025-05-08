@@ -44,7 +44,6 @@ class DPrimeDataset(AbstractDataset):
         Returns:
             dict: Column names.
         """
-
         p = pathlib.Path(__file__).parents[1]
         fpath = pathlib.Path(fpath)
 
