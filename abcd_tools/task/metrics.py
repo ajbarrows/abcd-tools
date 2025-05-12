@@ -2,6 +2,7 @@
 
 import pathlib
 
+import numpy as np
 import pandas as pd
 from scipy.stats import norm
 
@@ -88,12 +89,16 @@ class DPrimeDataset(AbstractDataset):
         """
         cols = self.columns
 
-        def _compute_rate(df: pd.DataFrame, n_correct: int, n_total:int) -> float:
+        def _compute_rate(df: pd.DataFrame, n_correct: list, n_total:list) -> pd.Series:
             """Helper function for rate computation."""
             correct = df[n_correct].sum(axis=1)
             total = df[n_total].sum(axis=1)
 
-            return correct / total
+            # return correct / total
+            return np.divide(correct, total,
+                            out=np.zeros_like(correct),
+                            where=total != 0
+                        )
 
         target_correct_0back = cols['0back_target_correct'].values()
         target_total_0back = cols['0back_target_total'].values()
