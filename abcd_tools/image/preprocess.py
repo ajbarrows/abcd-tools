@@ -170,24 +170,24 @@ def compute_average_betas(run1: pd.DataFrame, run2: pd.DataFrame,
     return avg.dropna(how='all', axis=1).dropna(how='all', axis=0)
 
 def compute_tstat(mapping: dict) -> dict:
-    """Compute t-statistics.
+     """Compute t-statistics.
 
-    Args:
-        lh_mapping (pd.DataFrame): Left hemisphere mapping.
+     Args:
+         lh_mapping (pd.DataFrame): Left hemisphere mapping.
 
-    Returns:
-        dict: T-statistics.
-    """
+     Returns:
+         dict: T-statistics.
+     """
 
-    t_values = {}
-    p_values = {}
+     t_values = {}
+     p_values = {}
 
-    for roi, vertex in mapping.items():
-        t, p = ttest_1samp(vertex, 0, axis=0, nan_policy='omit')
-        t_values[roi] = t
-        p_values[roi] = p
+     for roi, vertex in mapping.items():
+         t, p = ttest_1samp(vertex, 0, axis=0, nan_policy='omit')
+         t_values[roi] = t
+         p_values[roi] = p
 
-    return t_values, p_values
+     return t_values, p_values
 
 
 def map_hemisphere(vertices: pd.DataFrame, mapping: np.array, labels: list,

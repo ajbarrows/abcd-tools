@@ -1,22 +1,29 @@
 """Compute various task metrics."""
 
 import pathlib
+from itertools import product
 
+import numpy as np
 import pandas as pd
 from scipy.stats import norm
 
 from ..base import AbstractDataset
 from ..utils import ConfigLoader
+from ..utils.io import pd_query_parquet
 
 
 class DPrimeDataset(AbstractDataset):
     """Compute nBack task D-Prime."""
 
-    def __init__(self, columns_fpath: str="../conf/dprime.yaml") -> None:
-        self.columns = self._load_columns(columns_fpath)
-        pass
+    def __init__(self, columns_fpath: str="../conf/dprime.yaml",
+                mappings_fpath: str="../conf/mappings.yaml",
+                timepoints: list=None) -> None:
 
-    def load_and_compute(self, df, return_all=False) -> pd.DataFrame:
+        self.columns = self._load_config(columns_fpath)
+        self.sessions = self._load_config(mappings_fpath)['session_map']
+        self.timepoints = timepoints
+
+    def load_and_compute(self, abcd_fpath: str, return_all=False) -> pd.DataFrame:
         """Load nBack behavior metrics and compute dPrime metric.
 
         `norminv = scipy.stats.norm.ppf`
@@ -31,18 +38,18 @@ class DPrimeDataset(AbstractDataset):
         Returns:
             pd.DataFrame: Resulting dataframe with computed dPrime.
         """
-        nback_behavioral = self.load(df)
+        nback_behavioral = self.load(abcd_fpath)
         dprime = self.compute_dprime(nback_behavioral, return_all)
         return dprime
 
-    def _load_columns(self, fpath: str) -> dict:
-        """Load MRI behavioral columns from configuration file.
+    def _load_config(self, fpath: str) -> dict:
+        """Load configuration file.
 
         Args:
             fpath (str): YAML config filepath.
 
         Returns:
-            dict: Column names.
+            dict
         """
         p = pathlib.Path(__file__).parents[1]
         fpath = pathlib.Path(fpath)
@@ -51,26 +58,58 @@ class DPrimeDataset(AbstractDataset):
         vars = ConfigLoader.load_yaml(config_path)
         return vars
 
-    def load(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Load and rename nBack d-prime components.
+    def load(self, abcd_fpath: str) -> pd.DataFrame:
 
-        Args:
-            df (pd.DataFrame): nBack behavioral metrics dataframe.
-                (e.g., `mri_y_tfmr_nback_beh.csv`)
+        # parse config for query (a little hacky)
+        dprime_loadvars = [var for value in self.columns.values() for var in value]
+        dprime_loadvars = {var: var for var in dprime_loadvars} # make dict for query
 
-        Returns:
-            pd.DataFrame: Metrics needed to compute nBack d-prime.
-        """
+        var_map = {k: v for d in self.columns.values() for k, v in d.items()}
 
-        df = df.set_index(['src_subject_id', 'eventname'])
+        if self.timepoints is not None:
+            pass
+        else:
+            pass
 
-        result = pd.DataFrame()
-        for group, vars in self.columns.items():
-            tmp = df[vars.keys()]
-            tmp = tmp.rename(columns=vars)
-            result = pd.concat([result, tmp], axis=1)
+        return (
+            pd_query_parquet(abcd_fpath, dprime_loadvars)
+                .assign(eventname=lambda x:
+                    x["eventname"].cat.rename_categories(self.sessions)
+                    )
+                .query("eventname in @timepoints")
+                .rename(columns=var_map)
+                # .pipe(self._correct_missing)
+                .set_index(['src_subject_id', 'eventname'])
+        )
 
-        return result
+
+    def _correct_missing(self, df: pd.DataFrame):
+
+        N_BLOCKS = 10
+
+        blocks = [
+            'negface',
+            'neutface',
+            'place',
+            'posface'
+        ]
+
+        conditions = ['0back', '2back']
+
+        for (condition, block) in product(conditions, blocks):
+
+            stem = f'{condition}_ntotal_{block}_'
+
+            target = stem + 'target'
+            lure = stem + 'lure'
+            nonlure = stem + 'nonlure'
+
+            df[nonlure] = np.where(
+                df[nonlure].isna(),
+                N_BLOCKS - df[target] - df[lure],
+                df[nonlure]
+            )
+        return df
 
     def compute_dprime(self, df: pd.DataFrame, return_all=False) -> pd.DataFrame:
         """Compute n-Back 0-back and 2-back d-prime.
@@ -88,12 +127,16 @@ class DPrimeDataset(AbstractDataset):
         """
         cols = self.columns
 
-        def _compute_rate(df: pd.DataFrame, n_correct: int, n_total:int) -> float:
+        def _compute_rate(df: pd.DataFrame, n_correct: list, n_total:list) -> pd.Series:
             """Helper function for rate computation."""
             correct = df[n_correct].sum(axis=1)
             total = df[n_total].sum(axis=1)
 
-            return correct / total
+            # return correct / total
+            return np.divide(correct, total,
+                            out=np.zeros_like(correct),
+                            where=total != 0
+                        )
 
         target_correct_0back = cols['0back_target_correct'].values()
         target_total_0back = cols['0back_target_total'].values()
