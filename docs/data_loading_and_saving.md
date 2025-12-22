@@ -1,2 +1,2 @@
-::: abcd_tools.utils.ConfigLoader
+::: abcd_tools.utils.config_loader
 ::: abcd_tools.utils.io

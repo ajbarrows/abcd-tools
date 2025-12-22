@@ -72,7 +72,9 @@ dependencies = [
     "matplotlib",
     "pandas",
     "scikit-learn",
+    "scipy",
     "numpy",
+    "pyyaml",
 ]
 readme = "README.md"
 
@@ -84,10 +86,6 @@ docs = [
     "mkdocs-material",
     "mkdocs"
 ]
-
-[project.scripts]
-abcd-tools = "abcd_tools.cli:app"
-
 
 [tool.coverage.run]
 omit = [

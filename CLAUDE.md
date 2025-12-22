@@ -9,12 +9,17 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Development Setup
 
 ```bash
-# Clone and setup environment
+# Clone repository
 git clone git@github.com:ajbarrows/abcd-tools
 cd abcd-tools
+
+# Option 1: Using conda/mamba (recommended for full environment)
 mamba env update -f environment.yml
 conda activate abcd-tools
 python -m pip install -e .
+
+# Option 2: Using pip only (minimal setup for core functionality)
+pip install -e .
 ```
 
 ## Common Commands
@@ -70,10 +75,18 @@ Concrete dataset implementations should inherit from this base class.
   - Beta averaging across runs (weighted by degrees of freedom)
   - Outlier removal and normalization
   - `LinearResidualizer`: Residualize imaging data against covariates
+- `transform.py`: Model interpretation tools
+  - `haufe_transform()`: Memory-efficient Haufe transformation for interpreting linear model weights
 
 **`abcd_tools/utils/`**
-- `ConfigLoader.py`: YAML configuration file loading/saving
-- `io.py`: Additional I/O utilities
+- `config_loader.py`: YAML configuration file loading/saving
+- `io.py`: Data loading and manipulation utilities
+  - `load_tabular()`: Load CSV with optional column/timepoint filtering
+  - `load_dof()`: Load degrees of freedom from ABCD imaging QC files
+  - `apply_nda_names()`: Map variable names to NDA conventions
+  - `parse_vol_info()`: Parse volume information from ABCD naming conventions
+  - `parse_variable_mapping()`: Map variables across ABCD data releases
+  - `pd_query_parquet()`: Query and rename columns from parquet files
 
 ### Configuration System
 
@@ -83,7 +96,7 @@ Task-specific configurations are stored in `conf/` directory as YAML files:
 - `deap_dict.yaml`, `nda_dict.yaml`: Data dictionaries for ABCD instruments
 - `mappings.yaml`: Custom variable mappings
 
-The `ConfigLoader` utility loads these configurations at runtime, enabling flexible column selection and task-specific processing without hardcoding.
+The `config_loader` utility loads these configurations at runtime, enabling flexible column selection and task-specific processing without hardcoding.
 
 ### Task Processing Pattern
 
@@ -116,3 +129,14 @@ Pre-commit hooks enforce these automatically. The CI runs code style checks on a
 - Coverage configured to omit `tests/*` directory
 - CI uploads coverage to Codecov
 - Test files follow `test_*.py` naming convention
+- Current test coverage: **53%** across core modules
+- **Test Suite**: 41 passing tests covering:
+  - `config_loader`: YAML I/O operations
+  - `behavior`: ePrime file parsing and task-specific processing (MID, nBack, SST)
+  - `metrics`: D-prime calculation components
+  - `preprocess`: Image preprocessing, outlier removal, normalization, beta averaging, residualization
+
+## Current Limitations
+
+- **Documentation**: MkDocs structure exists but content needs completion
+- **Test Data**: Some tests (d-prime computation) require actual ABCD data structure and are skipped

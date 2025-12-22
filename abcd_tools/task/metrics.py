@@ -8,7 +8,7 @@ import pandas as pd
 from scipy.stats import norm
 
 from ..base import AbstractDataset
-from ..utils import ConfigLoader
+from ..utils import config_loader
 from ..utils.io import pd_query_parquet
 
 
@@ -55,7 +55,7 @@ class DPrimeDataset(AbstractDataset):
         fpath = pathlib.Path(fpath)
 
         config_path = p / fpath
-        vars = ConfigLoader.load_yaml(config_path)
+        vars = config_loader.load_yaml(config_path)
         return vars
 
     def load(self, abcd_fpath: str) -> pd.DataFrame:

@@ -12,7 +12,7 @@ import numpy as np
 import pandas as pd
 
 from ..base import AbstractDataset
-from ..utils import ConfigLoader
+from ..utils import config_loader
 
 
 class eprimeDataSet(AbstractDataset):
@@ -71,7 +71,7 @@ class eprimeDataSet(AbstractDataset):
         fpath = pathlib.Path(fpath)
 
         config_path = p / fpath
-        colnames = ConfigLoader.load_yaml(config_path)
+        colnames = config_loader.load_yaml(config_path)
         return colnames[self.taskname]
 
     def _find_subjectid(self) -> str:
