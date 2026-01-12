@@ -6,6 +6,6 @@ from abc import ABC, abstractmethod
 class AbstractDataset(ABC):
     """Base dataset class."""
     @abstractmethod
-    def load():
+    def load(self):
         """Abstract loading method."""
         raise NotImplementedError

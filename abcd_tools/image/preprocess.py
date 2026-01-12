@@ -9,6 +9,27 @@ from sklearn.linear_model import LinearRegression
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
 
+def _align_dataframes(run1: pd.DataFrame, run2: pd.DataFrame,
+                      motion: pd.DataFrame) -> tuple:
+    """Align run1, run2, and motion dataframes on index and columns.
+
+    Args:
+        run1 (pd.DataFrame): First run data
+        run2 (pd.DataFrame): Second run data
+        motion (pd.DataFrame): Motion/DOF data
+
+    Returns:
+        tuple: Aligned (run1, run2, motion) dataframes
+    """
+    motion.columns = ['run1_dof', 'run2_dof']
+
+    run1, run2 = run1.align(run2, axis=1)
+    run1, motion = run1.align(motion, axis=0)
+    run2, motion = run2.align(motion, axis=0)
+
+    return run1, run2, motion
+
+
 def remove_outliers(df: pd.DataFrame, std_threshold: float) -> pd.DataFrame:
     """Dynamically winsorize dataframe within columns.
 
@@ -66,19 +87,7 @@ def compute_average_roi_betas(run1: pd.DataFrame, run2: pd.DataFrame,
             ]
         return tmp
 
-    def _align(run1, run2, motion):
-        """Align dataframes on index and columns."""
-        motion.columns = ['run1_dof', 'run2_dof']
-        run1 = _strip_runs(run1)
-        run2 = _strip_runs(run2)
-
-        run1, run2 = run1.align(run2, axis=1)
-        run1, motion = run1.align(motion, axis=0)
-        run2, motion = run2.align(motion, axis=0)
-
-        return run1, run2, motion
-
-    if remove_outliers:
+    if rem_outliers:
         run1 = remove_outliers(run1, std_threshold=outlier_std_threshold)
         run2 = remove_outliers(run2, std_threshold=outlier_std_threshold)
 
@@ -86,7 +95,10 @@ def compute_average_roi_betas(run1: pd.DataFrame, run2: pd.DataFrame,
         run1 = normalize_by_sum(run1)
         run2 = normalize_by_sum(run2)
 
-    run1_stripped, run2_stripped, motion = _align(run1, run2, motion)
+    run1 = _strip_runs(run1)
+    run2 = _strip_runs(run2)
+
+    run1_stripped, run2_stripped, motion = _align_dataframes(run1, run2, motion)
 
 
     # multiply Beta values by degrees of freedom
@@ -122,16 +134,6 @@ def compute_average_betas(run1: pd.DataFrame, run2: pd.DataFrame,
         motion = motion[motion['eventname'] == 'baseline_year_1_arm_1']
         motion = motion.set_index(['src_subject_id', 'eventname'])
 
-    def _align(run1, run2, motion):
-        """Align dataframes on index and columns."""
-        motion.columns = ['run1_dof', 'run2_dof']
-
-        run1, run2 = run1.align(run2, axis=1)
-        run1, motion = run1.align(motion, axis=0)
-        run2, motion = run2.align(motion, axis=0)
-
-        return run1, run2, motion
-
     idx = ['src_subject_id', 'eventname']
     run1 = run1.set_index(idx)
     run2 = run2.set_index(idx)
@@ -144,7 +146,7 @@ def compute_average_betas(run1: pd.DataFrame, run2: pd.DataFrame,
         run1 = normalize_by_sum(run1)
         run2 = normalize_by_sum(run2)
 
-    run1_stripped, run2_stripped, motion = _align(run1, run2, motion)
+    run1_stripped, run2_stripped, motion = _align_dataframes(run1, run2, motion)
 
     # Betas == 0 are not included in the average
     run1_stripped[run1_stripped == 0] = np.nan
