@@ -30,7 +30,7 @@ pip install -e .
 pytest
 
 # Run specific test file
-pytest tests/test_models.py
+pytest tests/test_behavior.py
 
 # Run with verbose output
 pytest -v
@@ -64,8 +64,8 @@ Concrete dataset implementations should inherit from this base class.
 
 **`abcd_tools/task/`**
 - `behavior.py`: ePrime file processing for fMRI tasks
-  - `eprimeDataSet`: Loads ePrime files with task-specific column selection
-  - `eprimeProcessor`: Processes MID, SST, and nBack task events (alignment, timing conversion)
+  - `EPrimeDataset`: Loads ePrime files with task-specific column selection
+  - `EPrimeProcessor`: Processes MID, SST, and nBack task events (alignment, timing conversion)
 - `metrics.py`: Computes task performance metrics
   - `DPrimeDataset`: Computes d-prime for nBack task
 
@@ -102,9 +102,9 @@ The `config_loader` utility loads these configurations at runtime, enabling flex
 
 Processing ePrime behavioral files follows this pattern:
 
-1. **Load**: `eprimeDataSet.load()` reads tab-delimited ePrime files
+1. **Load**: `EPrimeDataset.load()` reads tab-delimited ePrime files
 2. **Configure**: Uses `task.yaml` to select task-specific columns
-3. **Process**: `eprimeProcessor.process()` applies task-specific transformations:
+3. **Process**: `EPrimeProcessor.process()` applies task-specific transformations:
    - Drops pre-dummy-scan trials
    - Aligns timing to scan start (subtract prep time, convert to seconds)
    - Merges cue/stim timings
