@@ -15,8 +15,8 @@ from ..base import AbstractDataset
 from ..utils import config_loader
 
 
-class eprimeDataSet(AbstractDataset):
-    """Initialize eprimeDataSet class.
+class EPrimeDataset(AbstractDataset):
+    """Initialize EPrimeDataset class.
 
     Attributes:
         filepath (str | os.PathLike): Path to ePrime file.
@@ -96,7 +96,7 @@ class eprimeDataSet(AbstractDataset):
         return df
 
 
-class eprimeProcessor():
+class EPrimeProcessor():
     """Initialize ePrime processor object.
 
     Args:

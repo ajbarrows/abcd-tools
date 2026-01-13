@@ -90,6 +90,9 @@ docs = [
     "mkdocs-material",
     "mkdocs"
 ]
+plotting = [
+    "nilearn"
+]
 
 [tool.coverage.run]
 omit = [

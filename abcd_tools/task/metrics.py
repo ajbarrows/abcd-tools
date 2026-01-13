@@ -66,11 +66,6 @@ class DPrimeDataset(AbstractDataset):
 
         var_map = {k: v for d in self.columns.values() for k, v in d.items()}
 
-        if self.timepoints is not None:
-            pass
-        else:
-            pass
-
         return (
             pd_query_parquet(abcd_fpath, dprime_loadvars)
                 .assign(eventname=lambda x:
