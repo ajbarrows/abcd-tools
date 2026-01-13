@@ -3,10 +3,7 @@
 import numpy as np
 import pandas as pd
 from scipy.stats import ttest_1samp
-from sklearn.base import BaseEstimator
-from sklearn.compose import ColumnTransformer
 from sklearn.linear_model import LinearRegression
-from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
 
 def remove_outliers(df: pd.DataFrame, std_threshold: float) -> pd.DataFrame:
@@ -192,108 +189,182 @@ def compute_tstat(mapping: dict) -> dict:
 
 def map_hemisphere(vertices: pd.DataFrame, mapping: np.array, labels: list,
                    prefix: str=None, suffix: str=None,
-                   decode_ascii: bool=True, return_statistics: bool=False
+                   decode_ascii: bool=True, return_statistics: bool=False,
+                   multi_subject: bool=False
                    ) -> pd.DataFrame:
     """Map tabular vertexwise fMRI values to ROIs using nonzero average aggregation.
 
+    Supports both single-subject mode (with optional statistics) and multi-subject
+    batch processing mode.
+
     Args:
         vertices (pd.DataFrame): Tabular vertexwise data (columns are vertices).
-        mapping (np.array): Array of ROI indices. Must be the same length as `vertices`.
+            Single-subject: shape (1, n_vertices)
+            Multi-subject: shape (n_subjects, n_vertices)
+        mapping (np.array): Array of ROI indices. Must be the same length as n_vertices.
         labels (list): ROI labels for resulting averaged values.
         prefix (str, optional): Prefix added to all column names. Defaults to None.
         suffix (str, optional): Suffix added to all column names. Defaults to None.
+        decode_ascii (bool, optional): Whether to decode labels from ASCII bytes.
+            Defaults to True.
+        return_statistics (bool, optional): Return t-statistics and p-values.
+            Only valid for single-subject mode. Defaults to False.
+        multi_subject (bool, optional): Enable multi-subject batch processing mode.
+            When True, preserves all subject rows. When False, returns single-row
+            DataFrame. Defaults to False.
 
     Returns:
         pd.DataFrame: Nonzero-averaged ROIs.
+            Single-subject: shape (1, n_rois)
+            Multi-subject: shape (n_subjects, n_rois)
+        If return_statistics=True (single-subject only):
+            tuple: (rois, tvalues, pvalues) DataFrames
+
+    Raises:
+        ValueError: If return_statistics=True and multi_subject=True
     """
+    if return_statistics and multi_subject:
+        raise ValueError("return_statistics is only supported in single-subject mode")
 
+    # Handle None defaults for prefix/suffix
+    if prefix is None:
+        prefix = ""
+    if suffix is None:
+        suffix = ""
+
+    # Decode labels if needed
     if decode_ascii:
-        labels = [label.decode() for label in labels]
+        labels = [
+            label.decode() if isinstance(label, bytes) else label for label in labels
+        ]
 
-    map_dict = {}
-    avg_dict = {}
+    if multi_subject:
+        # Multi-subject mode: preserve all subject rows
+        # Get unique ROI indices
+        unique_rois = np.unique(mapping)
 
-    if isinstance(vertices, pd.DataFrame):
-        vertices = vertices.values
+        # Remove any prefix from column names
+        vertices_clean = vertices.copy()
+        vertices_clean.columns = vertices_clean.columns.str.replace(r".*_", "", regex=True)
 
-    for idx in mapping:
+        roi_dict = {}
+        for roi_idx in unique_rois:
+            # Get all vertices belonging to this ROI
+            roi_mask = mapping == roi_idx
+            roi_vertices = vertices_clean.loc[:, roi_mask]
 
-        indices = np.where(mapping == idx)[0]
+            # Mask zeros and compute mean across vertices (axis=1)
+            masked = np.ma.masked_equal(roi_vertices.values, 0)
+            roi_dict[roi_idx] = np.nanmean(masked, axis=1)
 
-        map_dict[idx] = vertices[:, indices]
-        map_dict[idx][map_dict[idx] == 0] = np.nan
-        avg_dict[idx] = np.nanmean(map_dict[idx], axis=1)[0]
-        map_dict[idx] = map_dict[idx][0]
+        rois = pd.DataFrame(roi_dict, index=vertices.index)
+        rois = rois.reindex(sorted(rois.columns), axis=1)
 
-
-    def _assemble_df(collection: dict, labels, prefix, suffix) -> pd.DataFrame:
-        df = pd.DataFrame(collection, index=[0])
-        df = df.reindex(sorted(df.columns), axis=1)
-
-        if len(labels) > df.shape[1]:
+        # Adjust labels if needed (skip 'Unknown' label at index 0)
+        if len(labels) > rois.shape[1]:
             labels = labels[1:]
+        labels = [prefix + str(label).lower() + suffix for label in labels]
+        rois.columns = labels
 
-        labels = [prefix + str(label) + suffix for label in labels]
-        df.columns = labels
-
-        return df
-
-    rois = _assemble_df(avg_dict, labels, prefix, suffix)
-
-    if return_statistics:
-
-        tvalues, pvalues = compute_tstat(map_dict)
-
-        tvalues = _assemble_df(tvalues, labels, prefix, suffix)
-        pvalues = _assemble_df(pvalues, labels, prefix, suffix)
-
-        return rois, tvalues, pvalues
-    else:
         return rois
 
+    else:
+        # Single-subject mode: original behavior
+        map_dict = {}
+        avg_dict = {}
 
-
-class LinearResidualizer(BaseEstimator):
-
-    def __init__(self, model=LinearRegression(), ohe_vars: list=None,
-                scale_vars: list=None
-                ):
-        self.model = model
-        self.ohe_vars = ohe_vars
-        self.scale_vars = scale_vars
-
-    def _transform(self, X):
-
-        transformers = []
-        if self.ohe_vars:
-            ohe = OneHotEncoder(drop='first', handle_unknown='infrequent_if_exist')
-            transformers.append(('ohe', ohe, self.ohe_vars))
-        if self.scale_vars:
-            scaler = StandardScaler()
-            transformers.append(('scale', scaler, self.scale_vars))
-
-        preprocessor = ColumnTransformer(transformers, remainder='passthrough')
-        return preprocessor.fit_transform(X)
-
-    def _fit(self, X, y):
-        self.model.fit(X, y)
-        return self
-
-    def _predict(self, X):
-        return self.model.predict(X)
-
-    def _get_residual(self, X, y):
-        return y - self._fit(X, y)._predict(X)
-
-    def residualize(self, X, y):
-        X = self._transform(X)
-
-        if y.ndim > 1:
-            residuals = np.zeros_like(y)
-            for i in range(y.shape[1]):
-                residuals[:, i] = self._get_residual(X, y.iloc[:, i])
-            # convert back to df
-            residuals = pd.DataFrame(residuals, columns=y.columns, index=y.index)
+        if isinstance(vertices, pd.DataFrame):
+            vertices_arr = vertices.values
         else:
-            residuals = self._get_residual(X, y)
-        return residuals
+            vertices_arr = vertices
+
+        for idx in mapping:
+            indices = np.where(mapping == idx)[0]
+
+            map_dict[idx] = vertices_arr[:, indices]
+            map_dict[idx][map_dict[idx] == 0] = np.nan
+            avg_dict[idx] = np.nanmean(map_dict[idx], axis=1)[0]
+            map_dict[idx] = map_dict[idx][0]
+
+        def _assemble_df(collection: dict, labels, prefix, suffix) -> pd.DataFrame:
+            df = pd.DataFrame(collection, index=[0])
+            df = df.reindex(sorted(df.columns), axis=1)
+
+            if len(labels) > df.shape[1]:
+                labels = labels[1:]
+
+            labels = [prefix + str(label) + suffix for label in labels]
+            df.columns = labels
+
+            return df
+
+        rois = _assemble_df(avg_dict, labels, prefix, suffix)
+
+        if return_statistics:
+            tvalues, pvalues = compute_tstat(map_dict)
+
+            tvalues = _assemble_df(tvalues, labels, prefix, suffix)
+            pvalues = _assemble_df(pvalues, labels, prefix, suffix)
+
+            return rois, tvalues, pvalues
+        else:
+            return rois
+
+
+def combine_runs_weighted(
+    run1: pd.DataFrame,
+    run2: pd.DataFrame,
+    motion: pd.DataFrame,
+) -> pd.DataFrame:
+    """Combine two imaging runs using DOF-weighted averaging.
+
+    Combines runs by weighting each by its degrees of freedom (DOF),
+    which accounts for data quality after motion censoring. Vertices
+    with beta == 0 are treated as missing data.
+
+    This is the preferred function for DOF-weighted averaging as it provides
+    clean separation of concerns (vs. compute_average_betas which includes
+    additional preprocessing steps).
+
+    Parameters
+    ----------
+    run1 : pd.DataFrame
+        Beta estimates for first run, indexed by (participant_id, session_id)
+    run2 : pd.DataFrame
+        Beta estimates for second run, same indexing
+    motion : pd.DataFrame
+        Degrees of freedom for each run, columns: ['run1_dof', 'run2_dof']
+        indexed by (participant_id, session_id)
+
+    Returns
+    -------
+    pd.DataFrame
+        DOF-weighted average of the two runs
+    """
+
+    def _align(run1, run2, motion):
+        """Align dataframes on index and columns."""
+        motion.columns = ["run1_dof", "run2_dof"]
+
+        run1, run2 = run1.align(run2, axis=1)
+        run1, motion = run1.align(motion, axis=0, join="inner")
+        run2, motion = run2.align(motion, axis=0, join="inner")
+
+        return run1, run2, motion
+
+    run1_stripped, run2_stripped, motion = _align(run1, run2, motion)
+
+    # Betas == 0 are not included in the average
+    run1_stripped[run1_stripped == 0] = np.nan
+    run2_stripped[run2_stripped == 0] = np.nan
+
+    # Multiply beta values by degrees of freedom
+    run1_weighted = run1_stripped.mul(motion["run1_dof"], axis=0)
+    run2_weighted = run2_stripped.mul(motion["run2_dof"], axis=0)
+
+    # Divide sum by total degrees of freedom
+    num = run1_weighted.add(run2_weighted, axis=0)
+    den = motion["run1_dof"] + motion["run2_dof"]
+    avg = num.div(den, axis=0)
+
+    return avg

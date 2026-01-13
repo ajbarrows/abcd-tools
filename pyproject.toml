@@ -75,6 +75,10 @@ dependencies = [
     "scipy",
     "numpy",
     "pyyaml",
+    "h5py",
+    "pyarrow",
+    "glmnet>=2.0",
+    "nilearn>=0.10",
 ]
 readme = "README.md"
 
