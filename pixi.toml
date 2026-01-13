@@ -1,0 +1,84 @@
+[project]
+name = "abcd-tools"
+version = "0.0.1"
+description = "A small collection of tools to make working with ABCD Study data easier"
+authors = ["Tony Barrows <ajbarrows@gmail.com>"]
+channels = ["conda-forge"]
+platforms = ["osx-arm64", "osx-64", "linux-64"]
+
+[tasks]
+test = "pytest"
+test-cov = "pytest --cov --cov-report term-missing"
+format = "black ."
+lint = "ruff check ."
+docs-serve = "mkdocs serve"
+docs-build = "mkdocs build"
+pre-commit = "pre-commit run --all-files"
+
+[dependencies]
+python = ">=3.10,<3.11"
+# Core dependencies
+matplotlib = "*"
+pandas = ">=2.0"
+scikit-learn = ">=1.5"
+scipy = ">=1.13"
+numpy = ">=1.26,<2.0"
+pyyaml = "*"
+h5py = "*"
+pyarrow = "*"
+# Additional scientific computing
+statsmodels = "*"
+seaborn = "*"
+# Neuroimaging
+nilearn = ">=0.10"
+# Jupyter
+jupyter = "*"
+jupyterlab = "*"
+ipykernel = "*"
+# ABCD-specific tools
+nda-tools = {version = "*", source = "pypi"}
+bidshandler = {version = "*", source = "pypi"}
+
+[feature.dev.dependencies]
+# Testing
+pytest = "*"
+pytest-cov = "*"
+hypothesis = "*"
+# Code quality
+black = "*"
+ruff = "*"
+isort = "*"
+pre-commit = "*"
+mypy = "*"
+# Documentation
+mkdocs = "*"
+mkdocs-material = "*"
+mkdocstrings = "*"
+mkdocs-autorefs = "*"
+# Build tools
+build = "*"
+twine = "*"
+
+[feature.modeling.dependencies]
+# For predictive modeling (optional feature)
+pymc = "*"
+pytorch = "*"
+
+[feature.matlab.dependencies]
+# MATLAB integration (optional)
+oct2py = {version = "*", source = "pypi"}
+matlabengine = {version = "*", source = "pypi"}
+
+[pypi-dependencies]
+# Packages only available via PyPI
+glmnet = ">=2.0"
+pyjanitor = "*"
+loguru = "*"
+pandas-flavor = "*"
+
+[environments]
+default = {solve-group = "default"}
+dev = {features = ["dev"], solve-group = "default"}
+modeling = {features = ["dev", "modeling"], solve-group = "default"}
+matlab = {features = ["dev", "matlab"], solve-group = "default"}
+full = {features = ["dev", "modeling", "matlab"], solve-group = "default"}
