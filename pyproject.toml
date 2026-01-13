@@ -72,7 +72,13 @@ dependencies = [
     "matplotlib",
     "pandas",
     "scikit-learn",
+    "scipy",
     "numpy",
+    "pyyaml",
+    "h5py",
+    "pyarrow",
+    "glmnet>=2.0",
+    "nilearn>=0.10",
 ]
 readme = "README.md"
 
@@ -84,10 +90,9 @@ docs = [
     "mkdocs-material",
     "mkdocs"
 ]
-
-[project.scripts]
-abcd-tools = "abcd_tools.cli:app"
-
+plotting = [
+    "nilearn"
+]
 
 [tool.coverage.run]
 omit = [
