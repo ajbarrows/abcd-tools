@@ -1,4 +1,4 @@
-[project]
+[workspace]
 name = "abcd-tools"
 version = "0.0.1"
 description = "A small collection of tools to make working with ABCD Study data easier"
@@ -35,9 +35,11 @@ nilearn = ">=0.10"
 jupyter = "*"
 jupyterlab = "*"
 ipykernel = "*"
-# ABCD-specific tools
-nda-tools = {version = "*", source = "pypi"}
-bidshandler = {version = "*", source = "pypi"}
+# Data processing utilities (moved from pypi - all available on conda-forge)
+glmnet = ">=2.0"
+pyjanitor = "*"
+loguru = "*"
+pandas-flavor = "*"
 
 [feature.dev.dependencies]
 # Testing
@@ -56,7 +58,7 @@ mkdocs-material = "*"
 mkdocstrings = "*"
 mkdocs-autorefs = "*"
 # Build tools
-build = "*"
+python-build = "*"
 twine = "*"
 
 [feature.modeling.dependencies]
@@ -64,21 +66,9 @@ twine = "*"
 pymc = "*"
 pytorch = "*"
 
-[feature.matlab.dependencies]
-# MATLAB integration (optional)
-oct2py = {version = "*", source = "pypi"}
-matlabengine = {version = "*", source = "pypi"}
-
-[pypi-dependencies]
-# Packages only available via PyPI
-glmnet = ">=2.0"
-pyjanitor = "*"
-loguru = "*"
-pandas-flavor = "*"
 
 [environments]
 default = {solve-group = "default"}
 dev = {features = ["dev"], solve-group = "default"}
 modeling = {features = ["dev", "modeling"], solve-group = "default"}
-matlab = {features = ["dev", "matlab"], solve-group = "default"}
-full = {features = ["dev", "modeling", "matlab"], solve-group = "default"}
+full = {features = ["dev", "modeling"], solve-group = "default"}

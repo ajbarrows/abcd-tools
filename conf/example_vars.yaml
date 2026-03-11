@@ -1,0 +1,64 @@
+ab_g_dyn:
+  ab_g_dyn__visit_age: age
+  ab_g_dyn__visit_dtt: reference_date
+su_y_sui:
+  su_y_sui__day_count: sui_day_count
+  su_y_sui__use__alc__sip_001: alcsip
+  su_y_sui__use__alc__sip_001__l: lastvisit_alcsip
+  su_y_sui__use__alc_001: alcuse
+  su_y_sui__use__alc_001__l: lastvisit_alcuse
+  su_y_sui__use__mj__puff_001: cannabis
+  su_y_sui__use__mj__puff_001__l: lastvisit_cannabis
+  su_y_sui__use__nic__puff_001: tobacco
+  su_y_sui__use__nic__puff_001__l: lastvisit_tobacco
+
+
+
+  # mr_y_smri__thk__dsk:
+#   mr_y_smri__thk__dsk__sfrt__lh_mean: smri_thick_cort.desikan_superiorfrontal.lh
+#   mr_y_smri__thk__dsk__rmfrt__lh_mean: smri_thick_cort.desikan_rostralmiddlefrontal.lh
+#   mr_y_smri__thk__dsk__cmfrt__lh_mean: smri_thick_cort.desikan_caudalmiddlefrontal.lh
+#   mr_y_smri__thk__dsk__pop__lh_mean: smri_thick_cort.desikan_parsopercularis.lh
+#   mr_y_smri__thk__dsk__ptg__lh_mean: smri_thick_cort.desikan_parstriangularis.lh
+#   mr_y_smri__thk__dsk__pob__lh_mean: smri_thick_cort.desikan_parsorbitalis.lh
+#   mr_y_smri__thk__dsk__lobfrt__lh_mean: smri_thick_cort.desikan_lateralorbitofrontal.lh
+#   mr_y_smri__thk__dsk__mobfrt__lh_mean: smri_thick_cort.desikan_medialorbitofrontal.lh
+#   mr_y_smri__thk__dsk__prctr__lh_mean: smri_thick_cort.desikan_precentral.lh
+#   mr_y_smri__thk__dsk__pactr__lh_mean: smri_thick_cort.desikan_paracentral.lh
+#   mr_y_smri__thk__dsk__pfrt__lh_mean: smri_thick_cort.desikan_frontalpole.lh
+#   mr_y_smri__thk__dsk__sfrt__rh_mean: smri_thick_cort.desikan_superiorfrontal.rh
+#   mr_y_smri__thk__dsk__rmfrt__rh_mean: smri_thick_cort.desikan_rostralmiddlefrontal.rh
+#   mr_y_smri__thk__dsk__cmfrt__rh_mean: smri_thick_cort.desikan_caudalmiddlefrontal.rh
+#   mr_y_smri__thk__dsk__pop__rh_mean: smri_thick_cort.desikan_parsopercularis.rh
+#   mr_y_smri__thk__dsk__ptg__rh_mean: smri_thick_cort.desikan_parstriangularis.rh
+#   mr_y_smri__thk__dsk__pob__rh_mean: smri_thick_cort.desikan_parsorbitalis.rh
+#   mr_y_smri__thk__dsk__lobfrt__rh_mean: smri_thick_cort.desikan_lateralorbitofrontal.rh
+#   mr_y_smri__thk__dsk__mobfrt__rh_mean: smri_thick_cort.desikan_medialorbitofrontal.rh
+#   mr_y_smri__thk__dsk__prctr__rh_mean: smri_thick_cort.desikan_precentral.rh
+#   mr_y_smri__thk__dsk__pactr__rh_mean: smri_thick_cort.desikan_paracentral.rh
+#   mr_y_smri__thk__dsk__pfrt__rh_mean: smri_thick_cort.desikan_frontalpole.rh
+#   mr_y_smri__vol__aseg__icv_sum: smri_vol_subcort.aseg_intracranialvolume
+# mr_y_smri__area__dsk:
+#   mr_y_smri__area__dsk__sfrt__lh_sum: smri_area_cort.desikan_superiorfrontal.lh
+#   mr_y_smri__area__dsk__rmfrt__lh_sum: smri_area_cort.desikan_rostralmiddlefrontal.lh
+#   mr_y_smri__area__dsk__cmfrt__lh_sum: smri_area_cort.desikan_caudalmiddlefrontal.lh
+#   mr_y_smri__area__dsk__pop__lh_sum: smri_area_cort.desikan_parsopercularis.lh
+#   mr_y_smri__area__dsk__ptg__lh_sum: smri_area_cort.desikan_parstriangularis.lh
+#   mr_y_smri__area__dsk__pob__lh_sum: smri_area_cort.desikan_parsorbitalis.lh
+#   mr_y_smri__area__dsk__lobfrt__lh_sum: smri_area_cort.desikan_lateralorbitofrontal.lh
+#   mr_y_smri__area__dsk__mobfrt__lh_sum: smri_area_cort.desikan_medialorbitofrontal.lh
+#   mr_y_smri__area__dsk__prctr__lh_sum: smri_area_cort.desikan_precentral.lh
+#   mr_y_smri__area__dsk__pactr__lh_sum: smri_area_cort.desikan_paracentral.lh
+#   mr_y_smri__area__dsk__pfrt__lh_sum: smri_area_cort.desikan_frontalpole.lh
+#   mr_y_smri__area__dsk__sfrt__rh_sum: smri_area_cort.desikan_superiorfrontal.rh
+#   mr_y_smri__area__dsk__rmfrt__rh_sum: smri_area_cort.desikan_rostralmiddlefrontal.rh
+#   mr_y_smri__area__dsk__cmfrt__rh_sum: smri_area_cort.desikan_caudalmiddlefrontal.rh
+#   mr_y_smri__area__dsk__pop__rh_sum: smri_area_cort.desikan_parsopercularis.rh
+#   mr_y_smri__area__dsk__ptg__rh_sum: smri_area_cort.desikan_parstriangularis.rh
+#   mr_y_smri__area__dsk__pob__rh_sum: smri_area_cort.desikan_parsorbitalis.rh
+#   mr_y_smri__area__dsk__lobfrt__rh_sum: smri_area_cort.desikan_lateralorbitofrontal.rh
+#   mr_y_smri__area__dsk__mobfrt__rh_sum: smri_area_cort.desikan_medialorbitofrontal.rh
+#   mr_y_smri__area__dsk__prctr__rh_sum: smri_area_cort.desikan_precentral.rh
+#   mr_y_smri__area__dsk__pactr__rh_sum: smri_area_cort.desikan_paracentral.rh
+#   mr_y_smri__area__dsk__pfrt__rh_sum: smri_area_cort.desikan_frontalpole.rh
+#   mr_y_smri__vol__aseg__icv_sum: smri_vol_subcort.aseg_intracranialvolume
