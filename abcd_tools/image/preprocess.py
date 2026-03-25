@@ -91,7 +91,9 @@ def compute_average_roi_betas(run1: pd.DataFrame, run2: pd.DataFrame,
     if normalize:
         run1 = normalize_by_sum(run1)
         run2 = normalize_by_sum(run2)
-
+    
+    run1_orig = run1.copy()
+    run2_orig = run2.copy()
     run1 = _strip_runs(run1)
     run2 = _strip_runs(run2)
 
@@ -108,7 +110,7 @@ def compute_average_roi_betas(run1: pd.DataFrame, run2: pd.DataFrame,
     avg = num.div(den, axis=0)
 
     # join with original data
-    joined = pd.concat([avg, run1, run2], axis=1)
+    joined = pd.concat([avg, run1_orig, run2_orig], axis=1)
 
     # remove columns with all NaN values, then remove rows with any NaN values
     return joined.dropna(how='all', axis=1).dropna()
