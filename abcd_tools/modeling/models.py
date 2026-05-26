@@ -143,7 +143,7 @@ def enet_cv(
 
 def get_feature_weights(
     models: Dict,
-    feature_names: Optional[List[str]] = None,
+    feature_names: Optional[Union[List[str], pd.Index, pd.DataFrame]] = None,
 ) -> pd.DataFrame:
     """Extract ElasticNet coefficients from every fold returned by ``enet_cv``.
 
@@ -152,10 +152,15 @@ def get_feature_weights(
     models : dict
         The first return value of ``enet_cv``:
         ``{fold_name: {'model': ElasticNetCV, 'score': float}, ...}``.
-    feature_names : list of str, optional
-        Labels for each feature (e.g. the column names of the DataFrame
-        passed to ``make_dataset``).  When provided, used as the
-        DataFrame index.  When omitted, the index is ``0, 1, …, n_features-1``.
+    feature_names : list of str, pd.Index, pd.DataFrame, or None
+        Labels for each feature.  Accepts any of:
+
+        * ``list`` of strings — used directly as the index.
+        * ``pd.Index`` — e.g. ``betas.columns``, used directly.
+        * ``pd.DataFrame`` — column names are extracted automatically,
+          so you can pass the original features DataFrame without
+          calling ``.columns.tolist()``.
+        * ``None`` (default) — integer index ``0, 1, …, n_features-1``.
 
     Returns
     -------
@@ -167,15 +172,25 @@ def get_feature_weights(
     --------
     >>> X, y = make_dataset(betas, phenotypes, outcome='dprime_2back')
     >>> models, scores = enet_cv(X, y)
-    >>> weights = get_feature_weights(models, feature_names=betas.columns.tolist())
+
+    >>> # pass the DataFrame directly
+    >>> weights = get_feature_weights(models, betas)
+
+    >>> # or just the column index
+    >>> weights = get_feature_weights(models, betas.columns)
+
     >>> weights.mean(axis=1).sort_values().tail(10)  # top features by mean weight
     """
+    if isinstance(feature_names, pd.DataFrame):
+        index = feature_names.columns
+    else:
+        index = feature_names  # list, pd.Index, or None — all valid for pd.DataFrame
+
     coefs = {
         fold_name: fold["model"].coef_
         for fold_name, fold in models.items()
     }
-    df = pd.DataFrame(coefs, index=feature_names)
-    return df
+    return pd.DataFrame(coefs, index=index)
 
 
 def run_single_experiment(
