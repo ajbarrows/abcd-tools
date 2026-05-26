@@ -1,9 +1,14 @@
 """Machine learning models and results collection.
 
-This module provides functions for:
-- ElasticNet cross-validation model training using scikit-learn
-- Experiment execution and results collection
-- Results storage and retrieval
+This module provides the two core modeling functions:
+
+- ``make_dataset``: align a feature DataFrame with an outcome column and
+  return ``(X, y)`` numpy arrays ready for ``enet_cv``.
+- ``enet_cv``: nested cross-validation ElasticNet with automatic
+  regularisation-strength selection.
+
+Everything else in the module (``run_single_experiment``,
+``ExperimentResults``) builds on these two primitives.
 """
 
 from pathlib import Path
@@ -17,6 +22,50 @@ from sklearn.metrics import r2_score
 from sklearn.model_selection import KFold
 
 from abcd_tools.modeling.preprocessing import prepare_for_preprocessing
+
+
+def make_dataset(
+    features: pd.DataFrame,
+    outcomes: pd.DataFrame,
+    outcome: str,
+) -> Tuple[np.ndarray, np.ndarray]:
+    """Align features and outcomes into arrays ready for ``enet_cv``.
+
+    Performs an inner join on the shared index (typically
+    ``(participant_id, session_id)``), drops any row that has a missing
+    value in either the features or the outcome column, and returns plain
+    numpy arrays.  No assumptions are made about what the features
+    represent — pass beta estimates, ROI averages, or any other float
+    DataFrame.
+
+    Parameters
+    ----------
+    features : pd.DataFrame
+        Feature matrix indexed by ``(participant_id, session_id)``.
+        Columns are whatever predictors you want to model (e.g.
+        vertex-wise betas, ROI averages).
+    outcomes : pd.DataFrame
+        Phenotype / outcome data sharing the same index.
+    outcome : str
+        Column in *outcomes* to use as the prediction target.
+
+    Returns
+    -------
+    X : np.ndarray, shape (n_samples, n_features)
+        Feature matrix with no missing values.
+    y : np.ndarray, shape (n_samples,)
+        Outcome vector aligned with *X*.
+
+    Examples
+    --------
+    >>> X, y = make_dataset(betas, phenotypes, outcome='dprime_2back')
+    >>> models, scores = enet_cv(X, y)
+    """
+    merged = features.join(outcomes[[outcome]], how="inner")
+    merged = merged.dropna()
+    X = merged[features.columns].values
+    y = merged[outcome].values
+    return X, y
 
 
 def enet_cv(
