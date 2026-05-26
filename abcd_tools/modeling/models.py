@@ -137,6 +137,43 @@ def enet_cv(
     return models, cv_scores
 
 
+def get_feature_weights(
+    models: Dict,
+    feature_names: Optional[List[str]] = None,
+) -> pd.DataFrame:
+    """Extract ElasticNet coefficients from every fold returned by ``enet_cv``.
+
+    Parameters
+    ----------
+    models : dict
+        The first return value of ``enet_cv``:
+        ``{fold_name: {'model': ElasticNetCV, 'score': float}, ...}``.
+    feature_names : list of str, optional
+        Labels for each feature (e.g. the column names of the DataFrame
+        passed to ``make_dataset``).  When provided, used as the
+        DataFrame index.  When omitted, the index is ``0, 1, …, n_features-1``.
+
+    Returns
+    -------
+    pd.DataFrame, shape (n_features, n_folds)
+        Each column is one outer fold's coefficient vector.  Columns are
+        named after the fold keys (``'cv_fold_0'``, ``'cv_fold_1'``, …).
+
+    Examples
+    --------
+    >>> X, y = make_dataset(betas, phenotypes, outcome='dprime_2back')
+    >>> models, scores = enet_cv(X, y)
+    >>> weights = get_feature_weights(models, feature_names=betas.columns.tolist())
+    >>> weights.mean(axis=1).sort_values().tail(10)  # top features by mean weight
+    """
+    coefs = {
+        fold_name: fold["model"].coef_
+        for fold_name, fold in models.items()
+    }
+    df = pd.DataFrame(coefs, index=feature_names)
+    return df
+
+
 def run_single_experiment(
     task: str,
     condition: str,

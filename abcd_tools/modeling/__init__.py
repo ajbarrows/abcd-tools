@@ -30,6 +30,7 @@ from abcd_tools.modeling.dataset import (
 from abcd_tools.modeling.models import (
     ExperimentResults,
     enet_cv,
+    get_feature_weights,
     make_dataset,
     run_single_experiment,
 )
@@ -64,6 +65,7 @@ __all__ = [
     # Models
     "ExperimentResults",
     "enet_cv",
+    "get_feature_weights",
     "make_dataset",
     "run_single_experiment",
 ]
