@@ -74,13 +74,14 @@ def enet_cv(
     n_splits: int = 5,
     n_inner_folds: int = 5,
     n_alphas: int = 100,
-    l1_ratio: float = 0.5,
+    l1_ratio: Union[float, List[float]] = (0.1, 0.5, 0.7, 0.9, 0.95, 1.0),
     random_state: int = 42,
 ) -> Tuple[Dict, List[float]]:
     """Train ElasticNet models using nested cross-validation.
 
     Uses outer K-fold CV for evaluation and inner CV (via ElasticNetCV) for
-    automatic regularisation-strength (alpha) selection.
+    joint automatic selection of the regularisation strength (alpha) and the
+    L1/L2 mixing ratio (l1_ratio).
 
     Parameters
     ----------
@@ -94,17 +95,22 @@ def enet_cv(
         Number of inner CV folds for hyperparameter tuning (default: 5)
     n_alphas : int, optional
         Number of regularisation-strength values to test (default: 100)
-    l1_ratio : float, optional
-        ElasticNet mixing parameter, 0 <= l1_ratio <= 1 (default: 0.5)
-        - l1_ratio = 1 is Lasso
-        - l1_ratio = 0 is Ridge
+    l1_ratio : float or list of float, optional
+        L1/L2 mixing parameter(s) to search over.  Each value must satisfy
+        ``0 <= l1_ratio <= 1``, where 1 is pure Lasso and 0 is pure Ridge.
+        When a list is supplied the inner CV picks the best value alongside
+        the best alpha.  Defaults to ``(0.1, 0.5, 0.7, 0.9, 0.95, 1.0)``,
+        which spans the full Ridge-to-Lasso range.
     random_state : int, optional
         Random seed for reproducibility (default: 42)
 
     Returns
     -------
     models : dict
-        Dictionary mapping fold names to {'model': ElasticNetCV, 'score': float}
+        Dictionary mapping fold names to
+        ``{'model': ElasticNetCV, 'score': float}``.
+        ``model.alpha_`` and ``model.l1_ratio_`` hold the values chosen by
+        the inner CV for that fold.
     cv_scores : list of float
         Test set R² scores for each outer fold
     """
@@ -114,20 +120,18 @@ def enet_cv(
     cv_scores = []
 
     for fold, (train_idx, test_idx) in enumerate(outer_cv.split(X)):
-        # Split data
         X_train, X_test = X[train_idx], X[test_idx]
         y_train, y_test = y[train_idx], y[test_idx]
 
-        # ElasticNetCV runs inner CV automatically to select the best alpha.
+        # ElasticNetCV jointly selects the best alpha and l1_ratio via inner CV.
         # Pass n_alphas as the integer-valued `alphas` parameter (sklearn ≥1.7).
         model = ElasticNetCV(
-            l1_ratio=l1_ratio,  # L1/L2 mixing (1=Lasso, 0=Ridge)
-            cv=inner_cv,        # Inner CV for regularisation-strength selection
-            alphas=n_alphas,    # Number of alpha values to try
+            l1_ratio=l1_ratio,  # scalar or list — CV picks the best value
+            cv=inner_cv,
+            alphas=n_alphas,
         )
         model.fit(X_train, y_train)
 
-        # Evaluate on test set
         y_pred = model.predict(X_test)
         score = r2_score(y_test, y_pred)
         cv_scores.append(score)
