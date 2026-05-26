@@ -1,7 +1,7 @@
 """Machine learning models and results collection.
 
 This module provides functions for:
-- ElasticNet cross-validation model training using glmnetpy
+- ElasticNet cross-validation model training using scikit-learn
 - Experiment execution and results collection
 - Results storage and retrieval
 """
@@ -12,7 +12,7 @@ from typing import Dict, List, Optional, Tuple, Union
 
 import numpy as np
 import pandas as pd
-from glmnet import ElasticNet
+from sklearn.linear_model import ElasticNetCV
 from sklearn.metrics import r2_score
 from sklearn.model_selection import KFold
 
@@ -28,10 +28,10 @@ def enet_cv(
     l1_ratio: float = 0.5,
     random_state: int = 42,
 ) -> Tuple[Dict, List[float]]:
-    """Train ElasticNet models using nested cross-validation with glmnetpy.
+    """Train ElasticNet models using nested cross-validation.
 
-    Uses outer K-fold CV for evaluation and inner CV for hyperparameter tuning.
-    glmnetpy uses the fast Fortran implementation from the R glmnet package.
+    Uses outer K-fold CV for evaluation and inner CV (via ElasticNetCV) for
+    automatic regularisation-strength (alpha) selection.
 
     Parameters
     ----------
@@ -44,7 +44,7 @@ def enet_cv(
     n_inner_folds : int, optional
         Number of inner CV folds for hyperparameter tuning (default: 5)
     n_alphas : int, optional
-        Number of lambda values to test (default: 100)
+        Number of regularisation-strength values to test (default: 100)
     l1_ratio : float, optional
         ElasticNet mixing parameter, 0 <= l1_ratio <= 1 (default: 0.5)
         - l1_ratio = 1 is Lasso
@@ -55,34 +55,26 @@ def enet_cv(
     Returns
     -------
     models : dict
-        Dictionary mapping fold names to {'model': ElasticNet, 'score': float}
+        Dictionary mapping fold names to {'model': ElasticNetCV, 'score': float}
     cv_scores : list of float
         Test set R² scores for each outer fold
-
-    Notes
-    -----
-    glmnetpy parameter mapping:
-    - alpha (glmnetpy) = l1_ratio (sklearn): L1/L2 mixing parameter
-    - n_lambda (glmnetpy) = n_alphas (sklearn): number of regularization values
-    - lambda (glmnetpy internal) = alpha (sklearn): regularization strength
     """
-    cv = KFold(n_splits=n_splits, shuffle=True, random_state=random_state)
+    outer_cv = KFold(n_splits=n_splits, shuffle=True, random_state=random_state)
+    inner_cv = KFold(n_splits=n_inner_folds, shuffle=True, random_state=random_state)
     models = {}
     cv_scores = []
 
-    for fold, (train_idx, test_idx) in enumerate(cv.split(X)):
+    for fold, (train_idx, test_idx) in enumerate(outer_cv.split(X)):
         # Split data
         X_train, X_test = X[train_idx], X[test_idx]
         y_train, y_test = y[train_idx], y[test_idx]
 
-        # Train model with inner CV for hyperparameter tuning
-        # glmnetpy's ElasticNet has built-in CV
-        model = ElasticNet(
-            alpha=l1_ratio,  # L1/L2 mixing (1=Lasso, 0=Ridge)
-            n_splits=n_inner_folds,  # Inner CV folds
-            scoring="r2",  # Use R² for model selection
-            random_state=random_state,
-            n_lambda=n_alphas,  # Number of lambda values to try
+        # ElasticNetCV runs inner CV automatically to select the best alpha.
+        # Pass n_alphas as the integer-valued `alphas` parameter (sklearn ≥1.7).
+        model = ElasticNetCV(
+            l1_ratio=l1_ratio,  # L1/L2 mixing (1=Lasso, 0=Ridge)
+            cv=inner_cv,        # Inner CV for regularisation-strength selection
+            alphas=n_alphas,    # Number of alpha values to try
         )
         model.fit(X_train, y_train)
 

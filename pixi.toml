@@ -36,7 +36,6 @@ jupyter = "*"
 jupyterlab = "*"
 ipykernel = "*"
 # Data processing utilities (moved from pypi - all available on conda-forge)
-glmnet = ">=2.0"
 pyjanitor = "*"
 loguru = "*"
 pandas-flavor = "*"
